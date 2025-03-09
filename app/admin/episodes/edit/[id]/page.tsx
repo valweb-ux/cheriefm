@@ -1,20 +1,24 @@
+export const dynamic = "force-dynamic"
+
 import { EpisodeForm } from "@/components/admin/episodes/episode-form"
+import { createClient } from "@/lib/supabase/server"
 
-interface EditEpisodePageProps {
-  params: {
-    id: string
-  }
-}
+export default async function EditEpisodePage({ params }: { params: { id: string } }) {
+  const supabase = createClient()
 
-export default function EditEpisodePage({ params }: EditEpisodePageProps) {
+  // Отримуємо епізод з бази даних
+  const { data: episode } = await supabase.from("episodes").select("*").eq("id", params.id).single()
+
+  // Отримуємо програми з бази даних
+  const { data: programs } = await supabase.from("programs").select("*").order("title")
+
+  // Отримуємо мови з бази даних
+  const { data: languages } = await supabase.from("languages").select("*").order("name")
+
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Редагування епізоду</h1>
-        <p className="text-muted-foreground">Внесіть зміни до епізоду програми</p>
-      </div>
-
-      <EpisodeForm id={params.id} />
+      <h1 className="text-2xl font-bold">Редагувати епізод</h1>
+      <EpisodeForm episode={episode} programs={programs || []} languages={languages || []} />
     </div>
   )
 }

@@ -1,14 +1,18 @@
-import { PageForm } from "@/components/admin/pages/page-form"
+export const dynamic = "force-dynamic"
 
-export default function CreatePagePage() {
+import { PageForm } from "@/components/admin/pages/page-form"
+import { createClient } from "@/lib/supabase/server"
+
+export default async function CreatePagePage() {
+  const supabase = createClient()
+
+  // Отримуємо мови з бази даних
+  const { data: languages } = await supabase.from("languages").select("*").order("name")
+
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Створення сторінки</h1>
-        <p className="text-muted-foreground">Додайте нову сторінку на сайт</p>
-      </div>
-
-      <PageForm />
+      <h1 className="text-2xl font-bold">Створити сторінку</h1>
+      <PageForm languages={languages || []} />
     </div>
   )
 }

@@ -1,20 +1,21 @@
+export const dynamic = "force-dynamic"
+
 import { PageForm } from "@/components/admin/pages/page-form"
+import { createClient } from "@/lib/supabase/server"
 
-interface EditPagePageProps {
-  params: {
-    id: string
-  }
-}
+export default async function EditPagePage({ params }: { params: { id: string } }) {
+  const supabase = createClient()
 
-export default function EditPagePage({ params }: EditPagePageProps) {
+  // Отримуємо сторінку з бази даних
+  const { data: page } = await supabase.from("pages").select("*").eq("id", params.id).single()
+
+  // Отримуємо мови з бази даних
+  const { data: languages } = await supabase.from("languages").select("*").order("name")
+
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Редагування сторінки</h1>
-        <p className="text-muted-foreground">Внесіть зміни до сторінки</p>
-      </div>
-
-      <PageForm id={params.id} />
+      <h1 className="text-2xl font-bold">Редагувати сторінку</h1>
+      <PageForm page={page} languages={languages || []} />
     </div>
   )
 }
