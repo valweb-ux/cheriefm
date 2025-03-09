@@ -1,53 +1,29 @@
-"use client"
+import React from 'react';
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-import type React from "react"
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import TrackSelector from "./track-selector"
+// Імпортуємо нашу спрощену версію TrackSelector
+import TrackSelector from './track-selector';
 
-interface Track {
-  id: string
-  title: string
-  artist: string
-}
-
-interface PlaylistFormProps {
-  initialData?: {
-    id?: string
-    title: string
-    description: string
-    tracks: Track[]
-  }
-  onSubmit: (data: any) => void
-}
-
-export default function PlaylistForm({ initialData, onSubmit }: PlaylistFormProps) {
-  const [formData, setFormData] = useState({
-    title: initialData?.title || "",
-    description: initialData?.description || "",
+export default function PlaylistForm({ initialData = {}, onSubmit = () => {} }) {
+  const [formData, setFormData] = React.useState({
+    title: initialData?.title || '',
+    description: initialData?.description || '',
     tracks: initialData?.tracks || [],
-  })
+  });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target
-    setFormData((prev) => ({ ...prev, [name]: value }))
-  }
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
 
-  const handleTracksChange = (tracks: Track[]) => {
-    setFormData((prev) => ({ ...prev, tracks }))
-  }
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    onSubmit({
-      ...formData,
-      id: initialData?.id,
-    })
-  }
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    onSubmit(formData);
+  };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-8">
@@ -55,7 +31,12 @@ export default function PlaylistForm({ initialData, onSubmit }: PlaylistFormProp
         <div className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="title">Назва плейлиста</Label>
-            <Input id="title" name="title" value={formData.title} onChange={handleChange} required />
+            <Input
+              id="title"
+              name="title"
+              value={formData.title}
+              onChange={handleChange}
+            />
           </div>
 
           <div className="space-y-2">
@@ -75,7 +56,10 @@ export default function PlaylistForm({ initialData, onSubmit }: PlaylistFormProp
             <CardTitle>Треки</CardTitle>
           </CardHeader>
           <CardContent>
-            <TrackSelector selectedTracks={formData.tracks} onTracksChange={handleTracksChange} />
+            <TrackSelector
+              selectedTracks={formData.tracks}
+              onTracksChange={(tracks) => setFormData(prev => ({ ...prev, tracks }))}
+            />
           </CardContent>
         </Card>
       </div>
@@ -84,9 +68,10 @@ export default function PlaylistForm({ initialData, onSubmit }: PlaylistFormProp
         <Button type="button" variant="outline">
           Скасувати
         </Button>
-        <Button type="submit">{initialData?.id ? "Оновити плейлист" : "Створити плейлист"}</Button>
+        <Button type="submit">
+          {initialData?.id ? 'Оновити плейлист' : 'Створити плейлист'}
+        </Button>
       </div>
     </form>
-  )
+  );
 }
-
