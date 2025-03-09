@@ -5,11 +5,11 @@ import { NextResponse } from "next/server"
 export async function GET(request: Request, { params }: { params: { id: string } }) {
   const id = params.id
 
-  // Статична заглушка для плейлиста
-  const playlist = {
+  // Статична заглушка для чарту
+  const chart = {
     id,
-    title: "Плейлист " + id,
-    description: "Опис плейлиста " + id,
+    title: "Чарт " + id,
+    description: "Опис чарту " + id,
     image: "/placeholder.svg?height=300&width=300",
     tracks: [
       {
@@ -19,7 +19,6 @@ export async function GET(request: Request, { params }: { params: { id: string }
         artist: "Виконавець 1",
         album: "Альбом 1",
         coverUrl: "/placeholder.svg?height=300&width=300",
-        duration: "3:45",
       },
       {
         id: "2",
@@ -28,11 +27,10 @@ export async function GET(request: Request, { params }: { params: { id: string }
         artist: "Виконавець 2",
         album: "Альбом 2",
         coverUrl: "/placeholder.svg?height=300&width=300",
-        duration: "4:20",
       },
     ],
   }
 
-  return NextResponse.json(playlist)
+  return NextResponse.json(chart)
 }
 
