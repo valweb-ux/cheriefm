@@ -1,18 +1,21 @@
-export const dynamic = "force-static"
-
 import { NextResponse } from "next/server"
+import { createClient } from "@/lib/supabase/server"
 
 export async function GET() {
-  // Статична заглушка для поточного треку
-  const nowPlaying = {
-    title: "Назва пісні",
-    artist: "Виконавець",
-    album: "Альбом",
-    coverUrl: "/placeholder.svg?height=300&width=300",
-    startTime: new Date().toISOString(),
-    endTime: new Date(Date.now() + 3 * 60 * 1000).toISOString(),
+  const supabase = createClient()
+
+  // Отримуємо поточний трек з бази даних
+  const { data, error } = await supabase
+    .from("current_tracks")
+    .select("*")
+    .order("started_at", { ascending: false })
+    .limit(1)
+    .single()
+
+  if (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 })
   }
 
-  return NextResponse.json(nowPlaying)
+  return NextResponse.json(data)
 }
 
