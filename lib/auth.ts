@@ -1,13 +1,21 @@
-// Створюємо заглушку для authOptions
 export const authOptions = {
   providers: [],
   callbacks: {
-    async session({ session, token, user }: any) {
-      return session
+    async session({ session, token }) {
+      return session;
     },
-    async jwt({ token, user, account, profile }: any) {
-      return token
+    async jwt({ token, user }) {
+      return token;
     },
   },
-}
+};
 
+export function getServerSession() {
+  return {
+    user: {
+      name: "Admin User",
+      email: "admin@example.com",
+      image: "/placeholder.svg?height=50&width=50",
+    },
+  };
+}
