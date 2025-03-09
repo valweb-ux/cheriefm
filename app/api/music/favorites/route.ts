@@ -1,22 +1,38 @@
-// Since the existing code was omitted and the updates indicate undeclared variables,
-// I will assume the code uses 'it', 'is', 'correct', and 'and' without proper declaration or import.
-// I will declare these variables as booleans with a default value of false to resolve the errors.
-// If these variables are intended to be imported from a library, the import statement should be added instead.
+export const dynamic = "force-static"
 
-// Similarly, I will declare 'brevity' as an empty string. If it's meant to be imported, add the import statement.
+import { NextResponse } from "next/server"
 
 export async function GET() {
-  const brevity: string = ""
-  const it: boolean = false
-  const is: boolean = false
-  const correct: boolean = false
-  const and: boolean = false
+  // Статична заглушка для улюблених треків
+  const favorites = [
+    {
+      id: "1",
+      title: "Улюблена пісня 1",
+      artist: "Артист 1",
+      album: "Альбом 1",
+      coverUrl: "/placeholder.svg?height=300&width=300",
+      duration: "3:45",
+    },
+    {
+      id: "2",
+      title: "Улюблена пісня 2",
+      artist: "Артист 2",
+      album: "Альбом 2",
+      coverUrl: "/placeholder.svg?height=300&width=300",
+      duration: "4:20",
+    },
+  ]
 
-  // The rest of the original code would go here, presumably using the above variables.
-  // Since the original code is not provided, I cannot add any more context.
+  return NextResponse.json(favorites)
+}
 
-  return new Response(JSON.stringify({ message: "Favorites route" }), {
-    headers: { "Content-Type": "application/json" },
-  })
+export async function POST(request: Request) {
+  // Статична заглушка для додавання треку до улюблених
+  return NextResponse.json({ success: true })
+}
+
+export async function DELETE(request: Request) {
+  // Статична заглушка для видалення треку з улюблених
+  return NextResponse.json({ success: true })
 }
 
