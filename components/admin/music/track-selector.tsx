@@ -1,6 +1,5 @@
 import React from 'react';
 
-// Простий компонент-заглушка без зовнішніх залежностей
 export default function TrackSelector({ selectedTracks = [], onTracksChange = () => {} }) {
   return (
     <div className="p-4 border rounded-md bg-muted">
