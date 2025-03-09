@@ -1,0 +1,109 @@
+export type Database = {
+  public: {
+    Tables: {
+      episodes: {
+        Row: {
+          id: string
+          created_at: string | null
+          title: string | null
+          description: string | null
+          program_id: string | null
+          image_url: string | null
+          audio_url: string | null
+          published_at: string | null
+          published: boolean | null
+          language_id: string | null
+        }
+        Insert: {
+          id?: string
+          created_at?: string | null
+          title?: string | null
+          description?: string | null
+          program_id?: string | null
+          image_url?: string | null
+          audio_url: string
+          published_at?: string | null
+          published?: boolean | null
+          language_id: string
+        }
+        Update: {
+          id?: string
+          created_at?: string | null
+          title?: string | null
+          description?: string | null
+          program_id?: string | null
+          image_url?: string | null
+          audio_url?: string | null
+          published_at?: string | null
+          published?: boolean | null
+          language_id?: string | null
+        }
+      }
+      pages: {
+        Row: {
+          id: string
+          created_at: string | null
+          title: string | null
+          slug: string | null
+          content: string | null
+          meta_title: string | null
+          meta_description: string | null
+          featured_image: string | null
+          published: boolean | null
+          language_id: string | null
+        }
+        Insert: {
+          id?: string
+          created_at?: string | null
+          title: string
+          slug: string
+          content?: string | null
+          meta_title?: string | null
+          meta_description?: string | null
+          featured_image?: string | null
+          published?: boolean | null
+          language_id: string
+        }
+        Update: {
+          id?: string
+          created_at?: string | null
+          title?: string | null
+          slug?: string | null
+          content?: string | null
+          meta_title?: string | null
+          meta_description?: string | null
+          featured_image?: string | null
+          published?: boolean | null
+          language_id?: string | null
+        }
+      }
+      radio_info: {
+        Row: {
+          id: string
+          current_track: string | null
+        }
+        Insert: {
+          id?: string
+          current_track?: string | null
+        }
+        Update: {
+          id?: string
+          current_track?: string | null
+        }
+      }
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      [_ in never]: never
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
+  }
+}
+
