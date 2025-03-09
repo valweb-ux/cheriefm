@@ -1,35 +1,22 @@
-import { type NextRequest, NextResponse } from "next/server"
-import { updatePageSeoData, getPageSeoData } from "@/lib/services/analytics-service"
+export const dynamic = "force-static"
 
-export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
-  try {
-    const id = params.id
+import { NextResponse } from "next/server"
 
-    // Отримання даних через API
-    const result = await getPageSeoData(id)
+export async function GET(request: Request, { params }: { params: { id: string } }) {
+  const id = params.id
 
-    if (!result) {
-      return NextResponse.json({ error: "Page SEO data not found" }, { status: 404 })
-    }
-
-    return NextResponse.json({ success: true, data: result })
-  } catch (error) {
-    console.error("Error getting page SEO data:", error)
-    return NextResponse.json({ error: error instanceof Error ? error.message : "Unknown error" }, { status: 500 })
+  // Статична заглушка для SEO даних
+  const seoData = {
+    id,
+    title: "Сторінка " + id,
+    description: "Опис сторінки " + id,
+    keywords: "ключові слова, радіо, музика",
+    ogImage: "/placeholder.svg?height=600&width=1200",
+    views: 100,
+    uniqueVisitors: 50,
+    averageTimeOnPage: "2:30",
   }
-}
 
-export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
-  try {
-    const id = params.id
-    const data = await request.json()
-
-    const result = await updatePageSeoData(id, data)
-
-    return NextResponse.json({ success: true, data: result })
-  } catch (error) {
-    console.error("Error updating page SEO data:", error)
-    return NextResponse.json({ error: error instanceof Error ? error.message : "Unknown error" }, { status: 500 })
-  }
+  return NextResponse.json(seoData)
 }
 

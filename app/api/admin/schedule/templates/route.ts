@@ -1,31 +1,27 @@
 export const dynamic = "force-static"
 
+import { NextResponse } from "next/server"
+
 export async function GET() {
-  return new Response(
-    JSON.stringify({
-      data: [
-        {
-          id: "1",
-          name: "Стандартний розклад",
-          description: "Стандартний розклад на тиждень",
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        },
-      ],
-    }),
+  // Статична заглушка для шаблонів розкладу
+  const templates = [
     {
-      headers: {
-        "Content-Type": "application/json",
-      },
+      id: "1",
+      name: "Стандартний розклад",
+      description: "Стандартний розклад на тиждень",
     },
-  )
+    {
+      id: "2",
+      name: "Святковий розклад",
+      description: "Розклад для святкових днів",
+    },
+  ]
+
+  return NextResponse.json(templates)
 }
 
 export async function POST() {
-  return new Response(JSON.stringify({ success: true }), {
-    headers: {
-      "Content-Type": "application/json",
-    },
-  })
+  // Статична заглушка для створення шаблону розкладу
+  return NextResponse.json({ success: true, id: Date.now().toString() })
 }
 

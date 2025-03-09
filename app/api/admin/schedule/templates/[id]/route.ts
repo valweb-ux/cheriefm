@@ -1,37 +1,45 @@
 export const dynamic = "force-static"
 
-export async function GET() {
-  return new Response(
-    JSON.stringify({
-      data: {
+import { NextResponse } from "next/server"
+
+export async function GET(request: Request, { params }: { params: { id: string } }) {
+  const id = params.id
+
+  // Статична заглушка для шаблону розкладу
+  const template = {
+    id,
+    name: "Шаблон " + id,
+    description: "Опис шаблону " + id,
+    items: [
+      {
         id: "1",
-        name: "Стандартний розклад",
-        description: "Стандартний розклад на тиждень",
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
+        title: "Ранкове шоу",
+        start: "08:00",
+        end: "10:00",
+        programId: "1",
+        day: "monday",
       },
-    }),
-    {
-      headers: {
-        "Content-Type": "application/json",
+      {
+        id: "2",
+        title: "Музичний блок",
+        start: "10:00",
+        end: "12:00",
+        programId: "2",
+        day: "monday",
       },
-    },
-  )
+    ],
+  }
+
+  return NextResponse.json(template)
 }
 
 export async function PUT() {
-  return new Response(JSON.stringify({ success: true }), {
-    headers: {
-      "Content-Type": "application/json",
-    },
-  })
+  // Статична заглушка для оновлення шаблону розкладу
+  return NextResponse.json({ success: true })
 }
 
 export async function DELETE() {
-  return new Response(JSON.stringify({ success: true }), {
-    headers: {
-      "Content-Type": "application/json",
-    },
-  })
+  // Статична заглушка для видалення шаблону розкладу
+  return NextResponse.json({ success: true })
 }
 
