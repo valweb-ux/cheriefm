@@ -1,0 +1,9 @@
+{
+  "version": 2,
+  "buildCommand": "next build",
+  "installCommand": "npm install --legacy-peer-deps",
+  "framework": "nextjs",
+  "github": {
+    "silent": true
+  }
+}
