@@ -1,21 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Вимикаємо статичну генерацію для сторінок, які використовують cookies
-  output: 'hybrid',
+  // Змінено 'hybrid' на 'standalone', оскільки 'hybrid' не підтримується
+  output: 'standalone',
   images: {
-    domains: ['localhost', 'example.com'],
-    unoptimized: true,
-  },
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
-  typescript: {
-    ignoreBuildErrors: true,
-  },
-  experimental: {
-    webpackBuildWorker: true,
-    parallelServerBuildTraces: true,
-    parallelServerCompiles: true,
+    domains: ['localhost'],
   },
 };
 

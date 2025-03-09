@@ -1,8 +1,9 @@
-import React from 'react';
-import { Button } from "@/components/ui/button";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+"use client"
+import { Button } from "@/components/ui/button"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
+// Експортуємо компонент за замовчуванням
 export default function PagesTable({ pages = [], onEdit = () => {}, onDelete = () => {} }) {
   return (
     <Card>
@@ -32,7 +33,7 @@ export default function PagesTable({ pages = [], onEdit = () => {}, onDelete = (
                   <TableRow key={page.id}>
                     <TableCell>{page.title}</TableCell>
                     <TableCell>{page.slug}</TableCell>
-                    <TableCell>{page.published ? 'Опубліковано' : 'Чернетка'}</TableCell>
+                    <TableCell>{page.published ? "Опубліковано" : "Чернетка"}</TableCell>
                     <TableCell>
                       <div className="flex gap-2">
                         <Button variant="outline" size="sm" onClick={() => onEdit(page.id)}>
@@ -51,5 +52,9 @@ export default function PagesTable({ pages = [], onEdit = () => {}, onDelete = (
         </div>
       </CardContent>
     </Card>
-  );
+  )
 }
+
+// Також експортуємо іменований компонент для сумісності
+export { PagesTable }
+

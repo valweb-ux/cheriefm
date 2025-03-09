@@ -1,27 +1,29 @@
-import React from 'react';
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import TrackSelector from './track-selector';
+"use client"
 
+import React from "react"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+
+// Експортуємо компонент за замовчуванням
 export default function PlaylistForm({ initialData = {}, onSubmit = () => {} }) {
   const [formData, setFormData] = React.useState({
-    title: initialData?.title || '',
-    description: initialData?.description || '',
+    title: initialData?.title || "",
+    description: initialData?.description || "",
     tracks: initialData?.tracks || [],
-  });
+  })
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
+    const { name, value } = e.target
+    setFormData((prev) => ({ ...prev, [name]: value }))
+  }
 
   const handleSubmit = (e) => {
-    e.preventDefault();
-    onSubmit(formData);
-  };
+    e.preventDefault()
+    onSubmit(formData)
+  }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-8">
@@ -29,12 +31,7 @@ export default function PlaylistForm({ initialData = {}, onSubmit = () => {} }) 
         <div className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="title">Назва плейлиста</Label>
-            <Input
-              id="title"
-              name="title"
-              value={formData.title}
-              onChange={handleChange}
-            />
+            <Input id="title" name="title" value={formData.title} onChange={handleChange} />
           </div>
 
           <div className="space-y-2">
@@ -54,10 +51,9 @@ export default function PlaylistForm({ initialData = {}, onSubmit = () => {} }) 
             <CardTitle>Треки</CardTitle>
           </CardHeader>
           <CardContent>
-            <TrackSelector
-              selectedTracks={formData.tracks}
-              onTracksChange={(tracks) => setFormData(prev => ({ ...prev, tracks }))}
-            />
+            <div className="p-4 border rounded-md bg-muted">
+              <p className="text-sm text-muted-foreground">Компонент вибору треків тимчасово недоступний.</p>
+            </div>
           </CardContent>
         </Card>
       </div>
@@ -66,10 +62,12 @@ export default function PlaylistForm({ initialData = {}, onSubmit = () => {} }) 
         <Button type="button" variant="outline">
           Скасувати
         </Button>
-        <Button type="submit">
-          {initialData?.id ? 'Оновити плейлист' : 'Створити плейлист'}
-        </Button>
+        <Button type="submit">{initialData?.id ? "Оновити плейлист" : "Створити плейлист"}</Button>
       </div>
     </form>
-  );
+  )
 }
+
+// Також експортуємо іменований компонент для сумісності
+export { PlaylistForm }
+
