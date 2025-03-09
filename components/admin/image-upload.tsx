@@ -1,149 +1,86 @@
 "use client"
 
-import type React from "react"
-
-import { useState } from "react"
-import Image from "next/image"
-import { createClient } from "@/lib/supabase/client"
+import React from "react"
 import { Button } from "@/components/ui/button"
+import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import { toast } from "@/hooks/use-toast"
-import { ImageIcon, Loader2Icon, UploadIcon, XIcon } from "lucide-react"
+import { Label } from "@/components/ui/label"
+import { ImageIcon, UploadIcon } from "lucide-react"
 
-export function ImageUpload({
+interface ImageUploadProps {
+  value?: string
+  onChange: (value: string) => void
+  label?: string
+  accept?: string
+  maxSize?: number
+}
+
+export default function ImageUpload({
   value,
   onChange,
-  bucketName = "images",
-}: {
-  value: string
-  onChange: (value: string) => void
-  bucketName?: string
-}) {
-  const [isUploading, setIsUploading] = useState(false)
-  const supabase = createClient()
+  label = "Зображення",
+  accept = "image/*",
+  maxSize = 5 * 1024 * 1024, // 5MB
+}: ImageUploadProps) {
+  const [preview, setPreview] = React.useState<string | null>(value || null)
+  const [error, setError] = React.useState<string | null>(null)
 
-  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
 
-    // Перевірка типу файлу
-    if (!file.type.startsWith("image/")) {
-      toast({
-        title: "Помилка",
-        description: "Будь ласка, завантажте зображення",
-        variant: "destructive",
-      })
+    if (file.size > maxSize) {
+      setError(`Файл занадто великий. Максимальний розмір: ${maxSize / 1024 / 1024}MB`)
       return
     }
 
-    // Перевірка розміру файлу (макс. 5MB)
-    if (file.size > 5 * 1024 * 1024) {
-      toast({
-        title: "Помилка",
-        description: "Розмір файлу не повинен перевищувати 5MB",
-        variant: "destructive",
-      })
-      return
+    setError(null)
+    const reader = new FileReader()
+    reader.onloadend = () => {
+      const result = reader.result as string
+      setPreview(result)
+      onChange(result)
     }
-
-    try {
-      setIsUploading(true)
-
-      // Генеруємо унікальне ім'я файлу
-      const fileExt = file.name.split(".").pop()
-      const fileName = `${Math.random().toString(36).substring(2, 15)}_${Date.now()}.${fileExt}`
-      const filePath = `${bucketName}/${fileName}`
-
-      // Завантажуємо файл
-      const { error: uploadError } = await supabase.storage.from("public").upload(filePath, file)
-
-      if (uploadError) {
-        throw uploadError
-      }
-
-      // Отримуємо публічне URL
-      const { data } = supabase.storage.from("public").getPublicUrl(filePath)
-
-      onChange(data.publicUrl)
-      toast({
-        title: "Успішно",
-        description: "Зображення завантажено",
-      })
-    } catch (error) {
-      console.error("Error uploading image:", error)
-      toast({
-        title: "Помилка",
-        description: "Не вдалося завантажити зображення",
-        variant: "destructive",
-      })
-    } finally {
-      setIsUploading(false)
-    }
-  }
-
-  const handleRemove = () => {
-    onChange("")
+    reader.readAsDataURL(file)
   }
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center gap-4">
-        <div className="relative flex h-40 w-40 shrink-0 overflow-hidden rounded-md border">
-          {value ? (
-            <Image src={value || "/placeholder.svg"} alt="Uploaded image" fill className="object-cover" />
-          ) : (
-            <div className="flex h-full w-full items-center justify-center bg-secondary">
-              <ImageIcon className="h-10 w-10 text-muted-foreground" />
-            </div>
-          )}
-        </div>
-        <div className="flex-1 space-y-2">
-          {value ? (
-            <div className="space-y-2">
-              <p className="text-sm text-muted-foreground break-all">{value.split("/").pop()}</p>
-              <div className="flex gap-2">
-                <Button type="button" variant="outline" size="sm" onClick={handleRemove}>
-                  <XIcon className="mr-2 h-4 w-4" />
-                  Видалити
-                </Button>
-              </div>
+    <div className="space-y-2">
+      <Label>{label}</Label>
+      <Card className="overflow-hidden">
+        <CardContent className="p-0">
+          {preview ? (
+            <div className="relative aspect-video w-full overflow-hidden">
+              <img src={preview || "/placeholder.svg"} alt="Preview" className="h-full w-full object-cover" />
+              <Button
+                variant="destructive"
+                size="sm"
+                className="absolute right-2 top-2"
+                onClick={() => {
+                  setPreview(null)
+                  onChange("")
+                }}
+              >
+                Видалити
+              </Button>
             </div>
           ) : (
-            <div className="space-y-2">
-              <p className="text-sm text-muted-foreground">Рекомендовані формати: JPG, PNG, WebP</p>
-              <p className="text-sm text-muted-foreground">Максимальний розмір: 5MB</p>
+            <div className="flex flex-col items-center justify-center p-6 text-center">
+              <ImageIcon className="mb-2 h-10 w-10 text-muted-foreground" />
+              <p className="mb-2 text-sm text-muted-foreground">Перетягніть зображення сюди або натисніть для вибору</p>
+              <Label
+                htmlFor="image-upload"
+                className="flex cursor-pointer items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground"
+              >
+                <UploadIcon className="h-4 w-4" />
+                Вибрати зображення
+              </Label>
             </div>
           )}
-        </div>
-      </div>
-
-      <div className="flex items-center gap-2">
-        <Input
-          type="file"
-          accept="image/*"
-          onChange={handleUpload}
-          disabled={isUploading}
-          className="hidden"
-          id="image-upload"
-        />
-        <label htmlFor="image-upload" className="w-full">
-          <Button type="button" variant="outline" className="w-full cursor-pointer" disabled={isUploading} asChild>
-            <span>
-              {isUploading ? (
-                <>
-                  <Loader2Icon className="mr-2 h-4 w-4 animate-spin" />
-                  Завантаження...
-                </>
-              ) : (
-                <>
-                  <UploadIcon className="mr-2 h-4 w-4" />
-                  {value ? "Замінити зображення" : "Завантажити зображення"}
-                </>
-              )}
-            </span>
-          </Button>
-        </label>
-      </div>
+          <Input id="image-upload" type="file" accept={accept} onChange={handleFileChange} className="hidden" />
+        </CardContent>
+      </Card>
+      {error && <p className="text-sm text-destructive">{error}</p>}
     </div>
   )
 }
