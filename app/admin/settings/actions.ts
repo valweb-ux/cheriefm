@@ -1,8 +1,28 @@
-// Створюємо заглушки для функцій налаштувань
-export async function updateThemeSettingsAction(formData: FormData) {
-  // Заглушка для функції
-  const data = Object.fromEntries(formData)
-  console.log("Updating theme settings", data)
+export async function updateSiteSettingsAction(data: any) {
+  return { success: true }
+}
+
+export async function updateThemeSettingsAction(data: any) {
+  return { success: true }
+}
+
+export async function updateHomepageSettingsAction(data: any) {
+  return { success: true }
+}
+
+export async function createNavigationItemAction(data: any) {
+  return { id: Date.now().toString(), ...data }
+}
+
+export async function updateNavigationItemAction(id: string, data: any) {
+  return { success: true }
+}
+
+export async function deleteNavigationItemAction(id: string) {
+  return { success: true }
+}
+
+export async function reorderNavigationItemsAction(items: any[]) {
   return { success: true }
 }
 
