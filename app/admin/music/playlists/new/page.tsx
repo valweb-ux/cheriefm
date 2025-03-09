@@ -1,40 +1,11 @@
-import { getServerSession } from "next-auth"
-import { redirect } from "next/navigation"
-import { authOptions } from "@/lib/auth"
-import { AdminHeader } from "@/components/admin/admin-header"
-import { PlaylistForm } from "@/components/admin/music/playlist-form"
-import { getTracks } from "@/lib/services/tracks-service"
+import React from 'react';
+import { PlaylistForm } from '@/components/admin/music/playlist-form';
 
-export const metadata = {
-  title: "Створення плейлиста | Адмін-панель | Chérie FM",
-  description: "Створення нового плейлиста на радіостанції Chérie FM",
-}
-
-export default async function NewPlaylistPage() {
-  const session = await getServerSession(authOptions)
-
-  if (!session) {
-    redirect("/admin/login")
-  }
-
-  // Отримуємо всі треки для вибору
-  const { data: tracks } = await getTracks({
-    limit: 1000,
-    active: true,
-    orderBy: "title",
-    orderDirection: "asc",
-  })
-
+export default function NewPlaylistPage() {
   return (
-    <div className="space-y-6">
-      <AdminHeader
-        title="Створення плейлиста"
-        description="Створіть новий плейлист для радіостанції"
-        backHref="/admin/music/playlists"
-      />
-
-      <PlaylistForm playlist={null} tracks={tracks} userId={session.user.id} />
+    <div className="container py-6">
+      <h1 className="text-2xl font-bold mb-6">Створення нового плейлиста</h1>
+      <PlaylistForm />
     </div>
-  )
+  );
 }
-
