@@ -1,11 +1,10 @@
 "use server"
 
-import { createClientForPages } from "@/lib/supabase/server"
-import { cookies } from "next/headers"
+import { createClient } from "@/lib/supabase/server"
 import { revalidatePath } from "next/cache"
 
 export async function createEpisode(data: any) {
-  const supabase = createClientForPages(cookies())
+  const supabase = createClient()
 
   const { error } = await supabase.from("episodes").insert([data])
 
@@ -18,7 +17,7 @@ export async function createEpisode(data: any) {
 }
 
 export async function updateEpisode(id: string, data: any) {
-  const supabase = createClientForPages(cookies())
+  const supabase = createClient()
 
   const { error } = await supabase.from("episodes").update(data).eq("id", id)
 
@@ -32,7 +31,7 @@ export async function updateEpisode(id: string, data: any) {
 }
 
 export async function deleteEpisode(id: string) {
-  const supabase = createClientForPages(cookies())
+  const supabase = createClient()
 
   const { error } = await supabase.from("episodes").delete().eq("id", id)
 
