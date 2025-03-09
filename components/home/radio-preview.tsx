@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Play, Pause, Volume2, VolumeX } from "lucide-react"
-import { createClient } from "@/lib/supabase/client" // Use client version instead
 
 export default function RadioPreview() {
   const [isPlaying, setIsPlaying] = useState(false)
@@ -18,19 +17,25 @@ export default function RadioPreview() {
 
     // Fetch radio info
     const fetchRadioInfo = async () => {
-      const supabase = createClient()
-      const { data } = await supabase.from("radio_info").select("*").single()
-
-      if (data) {
-        setRadioInfo(data)
+      try {
+        const response = await fetch("/api/radio/now-playing")
+        if (response.ok) {
+          const data = await response.json()
+          setRadioInfo(data)
+        }
+      } catch (error) {
+        console.error("Error fetching radio info:", error)
       }
     }
 
     fetchRadioInfo()
+    // Set up interval to refresh radio info every 30 seconds
+    const interval = setInterval(fetchRadioInfo, 30000)
 
     return () => {
       audio.pause()
       audio.src = ""
+      clearInterval(interval)
     }
   }, [])
 
