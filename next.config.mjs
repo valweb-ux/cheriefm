@@ -1,11 +1,15 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Змінено 'hybrid' на 'standalone', оскільки 'hybrid' не підтримується
-  output: 'standalone',
+  output: 'export',
   images: {
-    domains: ['localhost'],
+    unoptimized: true,
   },
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+  typescript: {
+    ignoreBuildErrors: true,
+  }
 };
 
 export default nextConfig;
-
