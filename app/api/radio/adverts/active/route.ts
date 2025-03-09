@@ -3,11 +3,11 @@ export const dynamic = "force-static"
 import { NextResponse } from "next/server"
 
 export async function GET() {
-  // Статична заглушка для реклами на радіо
+  // Статична заглушка для активних реклам
   const adverts = [
     {
       id: "1",
-      title: "Реклама 1",
+      title: "Активна реклама 1",
       description: "Опис реклами 1",
       audioUrl: "/sample-audio.mp3",
       duration: "30",
@@ -17,7 +17,7 @@ export async function GET() {
     },
     {
       id: "2",
-      title: "Реклама 2",
+      title: "Активна реклама 2",
       description: "Опис реклами 2",
       audioUrl: "/sample-audio.mp3",
       duration: "15",
@@ -28,10 +28,5 @@ export async function GET() {
   ]
 
   return NextResponse.json(adverts)
-}
-
-export async function POST() {
-  // Статична заглушка для створення реклами
-  return NextResponse.json({ success: true, id: Date.now().toString() })
 }
 
