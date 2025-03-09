@@ -1,18 +1,12 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { Calendar, momentLocalizer } from "react-big-calendar"
-import moment from "moment"
-import "moment/locale/uk"
-import "react-big-calendar/lib/css/react-big-calendar.css"
-import { Card, CardContent } from "@/components/ui/card"
-import { useRouter } from "next/navigation"
-import { useToast } from "@/hooks/use-toast"
-import { Loader2 } from "lucide-react"
+import { useState } from "react"
+import { Button } from "@/components/ui/button"
+import { Card } from "@/components/ui/card"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Calendar } from "lucide-react"
 
-// Локалізація календаря
-moment.locale("uk")
-const localizer = momentLocalizer(moment)
+// Замінюємо react-big-calendar та moment на просту реалізацію календаря
 
 interface ScheduleEvent {
   id: string
@@ -20,159 +14,251 @@ interface ScheduleEvent {
   start: Date
   end: Date
   programId: string
-  isSpecial: boolean
-  status: string
-  resourceId?: string
 }
 
-export function ScheduleCalendar() {
-  const router = useRouter()
-  const { toast } = useToast()
-  const [events, setEvents] = useState<ScheduleEvent[]>([])
-  const [loading, setLoading] = useState(true)
-  const [view, setView] = useState<"month" | "week" | "day" | "agenda">("week")
-  const [date, setDate] = useState(new Date())
+interface ScheduleCalendarProps {
+  events: ScheduleEvent[]
+  onEventSelect: (event: ScheduleEvent) => void
+  onAddEvent: (date: Date) => void
+}
 
-  // Завантаження даних розкладу
-  useEffect(() => {
-    const fetchSchedule = async () => {
-      setLoading(true)
-      try {
-        // Визначаємо діапазон дат для запиту
-        let startDate, endDate
+export default function ScheduleCalendar({ events, onEventSelect, onAddEvent }: ScheduleCalendarProps) {
+  const [currentDate, setCurrentDate] = useState(new Date())
+  const [currentView, setCurrentView] = useState<"day" | "week">("week")
 
-        if (view === "month") {
-          startDate = moment(date).startOf("month").format("YYYY-MM-DD")
-          endDate = moment(date).endOf("month").format("YYYY-MM-DD")
-        } else if (view === "week") {
-          startDate = moment(date).startOf("week").format("YYYY-MM-DD")
-          endDate = moment(date).endOf("week").format("YYYY-MM-DD")
-        } else if (view === "day") {
-          startDate = moment(date).format("YYYY-MM-DD")
-          endDate = moment(date).format("YYYY-MM-DD")
-        } else {
-          startDate = moment(date).subtract(30, "days").format("YYYY-MM-DD")
-          endDate = moment(date).add(30, "days").format("YYYY-MM-DD")
-        }
+  // Отримуємо початок тижня (понеділок)
+  const getWeekStart = (date: Date) => {
+    const d = new Date(date)
+    const day = d.getDay()
+    const diff = d.getDate() - day + (day === 0 ? -6 : 1) // Корегуємо для неділі
+    return new Date(d.setDate(diff))
+  }
 
-        const response = await fetch(`/api/admin/schedule?start=${startDate}&end=${endDate}`)
+  // Отримуємо дні тижня
+  const getWeekDays = (startDate: Date) => {
+    const days = []
+    const currentDay = new Date(startDate)
 
-        if (!response.ok) {
-          throw new Error(`Помилка завантаження: ${response.status}`)
-        }
-
-        const data = await response.json()
-
-        // Перетворюємо дані у формат для календаря
-        const formattedEvents = data.map((entry: any) => ({
-          id: entry.id,
-          title: entry.override_title || entry.program_title || "Програма",
-          start: new Date(entry.start_time),
-          end: new Date(entry.end_time),
-          programId: entry.program_id,
-          isSpecial: entry.is_special,
-          status: entry.status,
-          resourceId: entry.hosts && entry.hosts.length > 0 ? entry.hosts[0] : undefined,
-        }))
-
-        setEvents(formattedEvents)
-      } catch (error) {
-        console.error("Помилка при завантаженні розкладу:", error)
-        toast({
-          title: "Помилка",
-          description: error instanceof Error ? error.message : "Не вдалося завантажити розклад",
-          variant: "destructive",
-        })
-      } finally {
-        setLoading(false)
-      }
+    for (let i = 0; i < 7; i++) {
+      days.push(new Date(currentDay))
+      currentDay.setDate(currentDay.getDate() + 1)
     }
 
-    fetchSchedule()
-  }, [view, date])
-
-  // Обробники подій календаря
-  const handleSelectEvent = (event: ScheduleEvent) => {
-    router.push(`/admin/schedule/${event.id}`)
+    return days
   }
 
-  const handleSelectSlot = ({ start, end }: { start: Date; end: Date }) => {
-    // Перенаправляємо на сторінку створення запису з попередньо заповненими датами
-    const startTime = moment(start).format("YYYY-MM-DDTHH:mm")
-    const endTime = moment(end).format("YYYY-MM-DDTHH:mm")
-    router.push(`/admin/schedule/create?start=${startTime}&end=${endTime}`)
-  }
-
-  // Стилізація подій
-  const eventStyleGetter = (event: ScheduleEvent) => {
-    let backgroundColor = "#3182ce" // default blue
-
-    if (event.status === "cancelled") {
-      backgroundColor = "#e53e3e" // red for cancelled
-    } else if (event.status === "live") {
-      backgroundColor = "#38a169" // green for live
-    } else if (event.isSpecial) {
-      backgroundColor = "#805ad5" // purple for special
+  // Отримуємо години дня
+  const getHours = () => {
+    const hours = []
+    for (let i = 0; i < 24; i++) {
+      hours.push(i)
     }
+    return hours
+  }
 
-    return {
-      style: {
-        backgroundColor,
-        borderRadius: "4px",
-        opacity: 0.8,
-        color: "white",
-        border: "0",
-        display: "block",
-      },
+  // Форматуємо дату
+  const formatDate = (date: Date) => {
+    return date.toLocaleDateString("uk-UA", { weekday: "short", day: "numeric", month: "short" })
+  }
+
+  // Форматуємо час
+  const formatTime = (hour: number) => {
+    return `${hour.toString().padStart(2, "0")}:00`
+  }
+
+  // Перевіряємо, чи є подія в цей час
+  const getEventsForHourAndDay = (hour: number, date: Date) => {
+    const dayStart = new Date(date)
+    dayStart.setHours(hour, 0, 0, 0)
+
+    const dayEnd = new Date(date)
+    dayEnd.setHours(hour + 1, 0, 0, 0)
+
+    return events.filter((event) => {
+      const eventStart = new Date(event.start)
+      const eventEnd = new Date(event.end)
+
+      return (
+        (eventStart >= dayStart && eventStart < dayEnd) ||
+        (eventEnd > dayStart && eventEnd <= dayEnd) ||
+        (eventStart <= dayStart && eventEnd >= dayEnd)
+      )
+    })
+  }
+
+  // Переходимо до попереднього періоду
+  const goToPrevious = () => {
+    const newDate = new Date(currentDate)
+    if (currentView === "day") {
+      newDate.setDate(newDate.getDate() - 1)
+    } else {
+      newDate.setDate(newDate.getDate() - 7)
     }
+    setCurrentDate(newDate)
   }
 
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center h-64">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    )
+  // Переходимо до наступного періоду
+  const goToNext = () => {
+    const newDate = new Date(currentDate)
+    if (currentView === "day") {
+      newDate.setDate(newDate.getDate() + 1)
+    } else {
+      newDate.setDate(newDate.getDate() + 7)
+    }
+    setCurrentDate(newDate)
   }
+
+  // Переходимо до сьогодні
+  const goToToday = () => {
+    setCurrentDate(new Date())
+  }
+
+  const weekStart = getWeekStart(currentDate)
+  const weekDays = getWeekDays(weekStart)
+  const hours = getHours()
 
   return (
-    <Card>
-      <CardContent className="p-4">
-        <div className="h-[700px]">
-          <Calendar
-            localizer={localizer}
-            events={events}
-            startAccessor="start"
-            endAccessor="end"
-            style={{ height: "100%" }}
-            views={["month", "week", "day", "agenda"]}
-            defaultView="week"
-            view={view}
-            date={date}
-            onView={(newView: any) => setView(newView)}
-            onNavigate={(newDate: Date) => setDate(newDate)}
-            onSelectEvent={handleSelectEvent}
-            onSelectSlot={handleSelectSlot}
-            selectable
-            eventPropGetter={eventStyleGetter}
-            messages={{
-              today: "Сьогодні",
-              previous: "Назад",
-              next: "Вперед",
-              month: "Місяць",
-              week: "Тиждень",
-              day: "День",
-              agenda: "Список",
-              date: "Дата",
-              time: "Час",
-              event: "Подія",
-              allDay: "Весь день",
-              noEventsInRange: "Немає програм у вибраному діапазоні",
-            }}
-          />
+    <div className="space-y-4">
+      <div className="flex justify-between items-center">
+        <div className="flex items-center gap-2">
+          <Button variant="outline" onClick={goToPrevious}>
+            &lt;
+          </Button>
+          <Button variant="outline" onClick={goToToday}>
+            Сьогодні
+          </Button>
+          <Button variant="outline" onClick={goToNext}>
+            &gt;
+          </Button>
         </div>
-      </CardContent>
-    </Card>
+
+        <div className="flex items-center gap-2">
+          <Calendar className="h-5 w-5 text-muted-foreground" />
+          <h2 className="text-xl font-semibold">
+            {currentView === "day" ? formatDate(currentDate) : `${formatDate(weekStart)} - ${formatDate(weekDays[6])}`}
+          </h2>
+        </div>
+
+        <Select value={currentView} onValueChange={(value) => setCurrentView(value as "day" | "week")}>
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="Вигляд" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="day">День</SelectItem>
+            <SelectItem value="week">Тиждень</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      <Card className="overflow-auto max-h-[600px]">
+        <div className="min-w-[800px]">
+          <div className="grid grid-cols-[60px_1fr] border-b">
+            <div className="p-2 border-r"></div>
+            <div className={`grid ${currentView === "day" ? "grid-cols-1" : "grid-cols-7"}`}>
+              {currentView === "day" ? (
+                <div className="p-2 text-center font-medium border-r last:border-r-0">{formatDate(currentDate)}</div>
+              ) : (
+                weekDays.map((day, index) => (
+                  <div key={index} className="p-2 text-center font-medium border-r last:border-r-0">
+                    {formatDate(day)}
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+
+          <div className="grid grid-cols-[60px_1fr]">
+            <div className="border-r">
+              {hours.map((hour) => (
+                <div key={hour} className="h-20 p-2 text-xs text-right border-b last:border-b-0">
+                  {formatTime(hour)}
+                </div>
+              ))}
+            </div>
+
+            <div className={`grid ${currentView === "day" ? "grid-cols-1" : "grid-cols-7"}`}>
+              {currentView === "day" ? (
+                <div className="border-r last:border-r-0">
+                  {hours.map((hour) => {
+                    const eventsForHour = getEventsForHourAndDay(hour, currentDate)
+
+                    return (
+                      <div
+                        key={hour}
+                        className="h-20 p-1 border-b last:border-b-0 relative"
+                        onClick={() => {
+                          const date = new Date(currentDate)
+                          date.setHours(hour, 0, 0, 0)
+                          onAddEvent(date)
+                        }}
+                      >
+                        {eventsForHour.map((event) => (
+                          <div
+                            key={event.id}
+                            className="absolute bg-primary/20 border border-primary rounded p-1 text-xs cursor-pointer"
+                            style={{
+                              top: "4px",
+                              left: "4px",
+                              right: "4px",
+                              height: "calc(100% - 8px)",
+                            }}
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              onEventSelect(event)
+                            }}
+                          >
+                            {event.title}
+                          </div>
+                        ))}
+                      </div>
+                    )
+                  })}
+                </div>
+              ) : (
+                weekDays.map((day, dayIndex) => (
+                  <div key={dayIndex} className="border-r last:border-r-0">
+                    {hours.map((hour) => {
+                      const eventsForHour = getEventsForHourAndDay(hour, day)
+
+                      return (
+                        <div
+                          key={hour}
+                          className="h-20 p-1 border-b last:border-b-0 relative"
+                          onClick={() => {
+                            const date = new Date(day)
+                            date.setHours(hour, 0, 0, 0)
+                            onAddEvent(date)
+                          }}
+                        >
+                          {eventsForHour.map((event) => (
+                            <div
+                              key={event.id}
+                              className="absolute bg-primary/20 border border-primary rounded p-1 text-xs cursor-pointer"
+                              style={{
+                                top: "4px",
+                                left: "4px",
+                                right: "4px",
+                                height: "calc(100% - 8px)",
+                              }}
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                onEventSelect(event)
+                              }}
+                            >
+                              {event.title}
+                            </div>
+                          ))}
+                        </div>
+                      )
+                    })}
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        </div>
+      </Card>
+    </div>
   )
 }
 

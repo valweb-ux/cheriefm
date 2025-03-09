@@ -1,241 +1,128 @@
 "use client"
 
 import { useState } from "react"
-import type { Track } from "@/types/music.types"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Badge } from "@/components/ui/badge"
-import { DragDropContext, Droppable, Draggable, type DropResult } from "@hello-pangea/dnd"
-import { Search, Music, Plus, X, GripVertical, Clock, User } from "lucide-react"
-import { formatDuration } from "@/lib/utils"
+import { Search } from "lucide-react"
 
-export function TrackSelector({
-  tracks,
-  selectedTrackIds,
-  onChange,
-}: {
-  tracks: Track[]
-  selectedTrackIds: string[]
-  onChange: (trackIds: string[]) => void
-}) {
-  const [search, setSearch] = useState("")
-  const [showSelected, setShowSelected] = useState(false)
+// Замінюємо @hello-pangea/dnd на просту реалізацію
+interface Track {
+  id: string
+  title: string
+  artist: string
+}
 
-  // Отримуємо повні об'єкти треків для вибраних ID
-  const selectedTracks = selectedTrackIds
-    .map((id) => tracks.find((track) => track.id === id))
-    .filter(Boolean) as Track[]
+interface TrackSelectorProps {
+  selectedTracks: Track[]
+  onTracksChange: (tracks: Track[]) => void
+}
 
-  // Фільтруємо треки за пошуком
-  const filteredTracks = tracks.filter((track) => {
-    const matchesSearch =
-      track.title.toLowerCase().includes(search.toLowerCase()) ||
-      (track.artists?.name || "").toLowerCase().includes(search.toLowerCase()) ||
-      (track.album || "").toLowerCase().includes(search.toLowerCase())
+export default function TrackSelector({ selectedTracks, onTracksChange }: TrackSelectorProps) {
+  const [searchQuery, setSearchQuery] = useState("")
+  const [searchResults, setSearchResults] = useState<Track[]>([])
 
-    // Якщо показуємо тільки вибрані, фільтруємо за вибраними ID
-    if (showSelected) {
-      return matchesSearch && selectedTrackIds.includes(track.id)
-    }
+  // Імітація пошуку треків
+  const handleSearch = () => {
+    // В реальному додатку тут був би запит до API
+    const mockResults: Track[] = [
+      { id: "1", title: "Пісня 1", artist: "Виконавець 1" },
+      { id: "2", title: "Пісня 2", artist: "Виконавець 2" },
+      { id: "3", title: "Пісня 3", artist: "Виконавець 3" },
+    ]
 
-    return matchesSearch
-  })
+    setSearchResults(
+      mockResults.filter(
+        (track) =>
+          track.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          track.artist.toLowerCase().includes(searchQuery.toLowerCase()),
+      ),
+    )
+  }
 
-  const handleAddTrack = (trackId: string) => {
-    if (!selectedTrackIds.includes(trackId)) {
-      onChange([...selectedTrackIds, trackId])
+  const addTrack = (track: Track) => {
+    if (!selectedTracks.some((t) => t.id === track.id)) {
+      onTracksChange([...selectedTracks, track])
     }
   }
 
-  const handleRemoveTrack = (trackId: string) => {
-    onChange(selectedTrackIds.filter((id) => id !== trackId))
+  const removeTrack = (trackId: string) => {
+    onTracksChange(selectedTracks.filter((track) => track.id !== trackId))
   }
 
-  const handleDragEnd = (result: DropResult) => {
-    if (!result.destination) return
-
-    const items = Array.from(selectedTrackIds)
-    const [reorderedItem] = items.splice(result.source.index, 1)
-    items.splice(result.destination.index, 0, reorderedItem)
-
-    onChange(items)
+  const moveTrack = (fromIndex: number, toIndex: number) => {
+    const newTracks = [...selectedTracks]
+    const [movedTrack] = newTracks.splice(fromIndex, 1)
+    newTracks.splice(toIndex, 0, movedTrack)
+    onTracksChange(newTracks)
   }
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-col sm:flex-row gap-4">
+      <div className="flex gap-2">
         <div className="relative flex-1">
-          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+          <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
-            type="search"
             placeholder="Пошук треків..."
             className="pl-8"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && handleSearch()}
           />
         </div>
-        <Button type="button" variant="outline" onClick={() => setShowSelected(!showSelected)}>
-          {showSelected ? "Показати всі треки" : "Показати вибрані треки"}
-        </Button>
+        <Button onClick={handleSearch}>Пошук</Button>
       </div>
 
-      <div className="border rounded-md">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Трек</TableHead>
-              <TableHead>Артист</TableHead>
-              <TableHead>Альбом</TableHead>
-              <TableHead className="w-[80px]">Тривалість</TableHead>
-              <TableHead className="w-[80px]">Дія</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {filteredTracks.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
-                  {search ? "Треків не знайдено" : "Немає доступних треків"}
-                </TableCell>
-              </TableRow>
-            ) : (
-              filteredTracks.map((track) => (
-                <TableRow key={track.id}>
-                  <TableCell>
-                    <div className="flex items-center gap-3">
-                      <div className="relative h-10 w-10 overflow-hidden rounded-md bg-secondary">
-                        {track.cover_url ? (
-                          <img
-                            src={track.cover_url || "/placeholder.svg"}
-                            alt={track.title}
-                            className="h-full w-full object-cover"
-                          />
-                        ) : (
-                          <div className="flex h-full w-full items-center justify-center">
-                            <Music className="h-5 w-5 text-muted-foreground" />
-                          </div>
-                        )}
-                      </div>
-                      <div>
-                        <div className="font-medium">{track.title}</div>
-                        {selectedTrackIds.includes(track.id) && (
-                          <Badge variant="outline" className="mt-1">
-                            Вибрано
-                          </Badge>
-                        )}
-                      </div>
-                    </div>
-                  </TableCell>
-                  <TableCell>{track.artists?.name || "-"}</TableCell>
-                  <TableCell>{track.album || "-"}</TableCell>
-                  <TableCell>{track.duration ? formatDuration(track.duration) : "-"}</TableCell>
-                  <TableCell>
-                    {selectedTrackIds.includes(track.id) ? (
-                      <Button type="button" variant="ghost" size="icon" onClick={() => handleRemoveTrack(track.id)}>
-                        <X className="h-4 w-4" />
-                        <span className="sr-only">Видалити</span>
-                      </Button>
-                    ) : (
-                      <Button type="button" variant="ghost" size="icon" onClick={() => handleAddTrack(track.id)}>
-                        <Plus className="h-4 w-4" />
-                        <span className="sr-only">Додати</span>
-                      </Button>
-                    )}
-                  </TableCell>
-                </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
-      </div>
-
-      <div className="mt-6">
-        <h3 className="text-lg font-medium mb-2">Вибрані треки ({selectedTracks.length})</h3>
-        <div className="border rounded-md">
-          {selectedTracks.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground">Треки не вибрано</div>
-          ) : (
-            <DragDropContext onDragEnd={handleDragEnd}>
-              <Droppable droppableId="selected-tracks">
-                {(provided) => (
-                  <div {...provided.droppableProps} ref={provided.innerRef}>
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead className="w-[60px]"></TableHead>
-                          <TableHead>Трек</TableHead>
-                          <TableHead>Артист</TableHead>
-                          <TableHead className="w-[80px]">Тривалість</TableHead>
-                          <TableHead className="w-[80px]">Дія</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {selectedTracks.map((track, index) => (
-                          <Draggable key={track.id} draggableId={track.id} index={index}>
-                            {(provided) => (
-                              <TableRow ref={provided.innerRef} {...provided.draggableProps}>
-                                <TableCell>
-                                  <div
-                                    {...provided.dragHandleProps}
-                                    className="cursor-grab flex items-center justify-center"
-                                  >
-                                    <GripVertical className="h-5 w-5 text-muted-foreground" />
-                                  </div>
-                                </TableCell>
-                                <TableCell>
-                                  <div className="flex items-center gap-3">
-                                    <div className="relative h-10 w-10 overflow-hidden rounded-md bg-secondary">
-                                      {track.cover_url ? (
-                                        <img
-                                          src={track.cover_url || "/placeholder.svg"}
-                                          alt={track.title}
-                                          className="h-full w-full object-cover"
-                                        />
-                                      ) : (
-                                        <div className="flex h-full w-full items-center justify-center">
-                                          <Music className="h-5 w-5 text-muted-foreground" />
-                                        </div>
-                                      )}
-                                    </div>
-                                    <div className="font-medium">{track.title}</div>
-                                  </div>
-                                </TableCell>
-                                <TableCell>
-                                  <div className="flex items-center gap-2">
-                                    <User className="h-4 w-4 text-muted-foreground" />
-                                    <span>{track.artists?.name || "-"}</span>
-                                  </div>
-                                </TableCell>
-                                <TableCell>
-                                  <div className="flex items-center gap-2">
-                                    <Clock className="h-4 w-4 text-muted-foreground" />
-                                    <span>{track.duration ? formatDuration(track.duration) : "-"}</span>
-                                  </div>
-                                </TableCell>
-                                <TableCell>
-                                  <Button
-                                    type="button"
-                                    variant="ghost"
-                                    size="icon"
-                                    onClick={() => handleRemoveTrack(track.id)}
-                                  >
-                                    <X className="h-4 w-4" />
-                                    <span className="sr-only">Видалити</span>
-                                  </Button>
-                                </TableCell>
-                              </TableRow>
-                            )}
-                          </Draggable>
-                        ))}
-                        {provided.placeholder}
-                      </TableBody>
-                    </Table>
-                  </div>
-                )}
-              </Droppable>
-            </DragDropContext>
-          )}
+      {searchResults.length > 0 && (
+        <div className="border rounded-md p-2">
+          <h3 className="font-medium mb-2">Результати пошуку</h3>
+          <ul className="space-y-1">
+            {searchResults.map((track) => (
+              <li key={track.id} className="flex justify-between items-center p-2 hover:bg-muted rounded-md">
+                <span>
+                  {track.title} - {track.artist}
+                </span>
+                <Button variant="ghost" size="sm" onClick={() => addTrack(track)}>
+                  Додати
+                </Button>
+              </li>
+            ))}
+          </ul>
         </div>
+      )}
+
+      <div className="border rounded-md p-2">
+        <h3 className="font-medium mb-2">Вибрані треки</h3>
+        {selectedTracks.length === 0 ? (
+          <p className="text-muted-foreground text-sm">Немає вибраних треків</p>
+        ) : (
+          <ul className="space-y-1">
+            {selectedTracks.map((track, index) => (
+              <li key={track.id} className="flex justify-between items-center p-2 hover:bg-muted rounded-md">
+                <div className="flex items-center gap-2">
+                  <span className="text-muted-foreground">{index + 1}.</span>
+                  <span>
+                    {track.title} - {track.artist}
+                  </span>
+                </div>
+                <div className="flex items-center gap-1">
+                  {index > 0 && (
+                    <Button variant="ghost" size="sm" onClick={() => moveTrack(index, index - 1)}>
+                      ↑
+                    </Button>
+                  )}
+                  {index < selectedTracks.length - 1 && (
+                    <Button variant="ghost" size="sm" onClick={() => moveTrack(index, index + 1)}>
+                      ↓
+                    </Button>
+                  )}
+                  <Button variant="ghost" size="sm" onClick={() => removeTrack(track.id)}>
+                    Видалити
+                  </Button>
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
     </div>
   )
