@@ -15,6 +15,7 @@ export interface Database {
           published: boolean | null
           language_id: string | null
           created_at: string | null
+          updated_at: string | null
         }
         Insert: {
           id?: string
@@ -27,6 +28,7 @@ export interface Database {
           published?: boolean | null
           language_id: string
           created_at?: string | null
+          updated_at?: string | null
         }
         Update: {
           id?: string
@@ -39,6 +41,7 @@ export interface Database {
           published?: boolean | null
           language_id?: string | null
           created_at?: string | null
+          updated_at?: string | null
         }
       }
       pages: {
@@ -53,6 +56,7 @@ export interface Database {
           published: boolean | null
           language_id: string | null
           created_at: string | null
+          updated_at: string | null
         }
         Insert: {
           id?: string
@@ -65,6 +69,7 @@ export interface Database {
           published?: boolean | null
           language_id: string
           created_at?: string | null
+          updated_at?: string | null
         }
         Update: {
           id?: string
@@ -77,6 +82,7 @@ export interface Database {
           published?: boolean | null
           language_id?: string | null
           created_at?: string | null
+          updated_at?: string | null
         }
       }
       radio_info: {
@@ -88,6 +94,7 @@ export interface Database {
           logo: string | null
           current_track: string | null
           created_at: string | null
+          updated_at: string | null
         }
         Insert: {
           id?: string
@@ -97,6 +104,7 @@ export interface Database {
           logo?: string | null
           current_track?: string | null
           created_at?: string | null
+          updated_at?: string | null
         }
         Update: {
           id?: string
@@ -106,6 +114,7 @@ export interface Database {
           logo?: string | null
           current_track?: string | null
           created_at?: string | null
+          updated_at?: string | null
         }
       }
       programs: {
@@ -117,6 +126,7 @@ export interface Database {
           duration: number | null
           image: string | null
           created_at: string | null
+          updated_at: string | null
         }
         Insert: {
           id?: string
@@ -126,6 +136,7 @@ export interface Database {
           duration?: number | null
           image?: string | null
           created_at?: string | null
+          updated_at?: string | null
         }
         Update: {
           id?: string
@@ -135,6 +146,7 @@ export interface Database {
           duration?: number | null
           image?: string | null
           created_at?: string | null
+          updated_at?: string | null
         }
       }
       languages: {
@@ -167,6 +179,7 @@ export interface Database {
           image: string | null
           schedule: string | null
           created_at: string | null
+          updated_at: string | null
         }
         Insert: {
           id?: string
@@ -177,6 +190,7 @@ export interface Database {
           image?: string | null
           schedule?: string | null
           created_at?: string | null
+          updated_at?: string | null
         }
         Update: {
           id?: string
@@ -187,6 +201,7 @@ export interface Database {
           image?: string | null
           schedule?: string | null
           created_at?: string | null
+          updated_at?: string | null
         }
       }
       news: {
@@ -200,6 +215,7 @@ export interface Database {
           published: boolean | null
           published_at: string | null
           created_at: string | null
+          updated_at: string | null
         }
         Insert: {
           id?: string
@@ -211,6 +227,7 @@ export interface Database {
           published?: boolean | null
           published_at?: string | null
           created_at?: string | null
+          updated_at?: string | null
         }
         Update: {
           id?: string
@@ -222,6 +239,7 @@ export interface Database {
           published?: boolean | null
           published_at?: string | null
           created_at?: string | null
+          updated_at?: string | null
         }
       }
       tracks: {
@@ -235,6 +253,7 @@ export interface Database {
           audio_url: string
           plays: number
           created_at: string
+          updated_at: string | null
         }
         Insert: {
           id?: string
@@ -246,6 +265,7 @@ export interface Database {
           audio_url: string
           plays?: number
           created_at?: string
+          updated_at?: string | null
         }
         Update: {
           id?: string
@@ -257,6 +277,7 @@ export interface Database {
           audio_url?: string
           plays?: number
           created_at?: string
+          updated_at?: string | null
         }
       }
       artists: {
@@ -268,6 +289,7 @@ export interface Database {
           genre: string | null
           bio: Json | null
           created_at: string
+          updated_at: string | null
         }
         Insert: {
           id?: string
@@ -277,6 +299,7 @@ export interface Database {
           genre?: string | null
           bio?: Json | null
           created_at?: string
+          updated_at?: string | null
         }
         Update: {
           id?: string
@@ -286,6 +309,7 @@ export interface Database {
           genre?: string | null
           bio?: Json | null
           created_at?: string
+          updated_at?: string | null
         }
       }
       playlists: {
@@ -296,6 +320,7 @@ export interface Database {
           image_url: string | null
           tracks_count: number
           created_at: string
+          updated_at: string | null
         }
         Insert: {
           id?: string
@@ -304,6 +329,7 @@ export interface Database {
           image_url?: string | null
           tracks_count?: number
           created_at?: string
+          updated_at?: string | null
         }
         Update: {
           id?: string
@@ -312,6 +338,7 @@ export interface Database {
           image_url?: string | null
           tracks_count?: number
           created_at?: string
+          updated_at?: string | null
         }
       }
       playlist_tracks: {
@@ -335,6 +362,55 @@ export interface Database {
           track_id?: string
           position?: number | null
           created_at?: string
+        }
+      }
+      users: {
+        Row: {
+          id: string
+          email: string
+          name: string | null
+          avatar_url: string | null
+          role_id: string | null
+          created_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          id?: string
+          email: string
+          name?: string | null
+          avatar_url?: string | null
+          role_id?: string | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          id?: string
+          email?: string
+          name?: string | null
+          avatar_url?: string | null
+          role_id?: string | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+      }
+      user_roles: {
+        Row: {
+          id: string
+          name: string
+          description: string | null
+          created_at: string | null
+        }
+        Insert: {
+          id?: string
+          name: string
+          description?: string | null
+          created_at?: string | null
+        }
+        Update: {
+          id?: string
+          name?: string
+          description?: string | null
+          created_at?: string | null
         }
       }
     }
