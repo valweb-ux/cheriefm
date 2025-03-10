@@ -3,358 +3,94 @@ export type Json = string | number | boolean | null | { [key: string]: Json | un
 export interface Database {
   public: {
     Tables: {
-      news: {
+      episodes: {
         Row: {
           id: string
-          created_at: string
-          updated_at: string
-          title: string
-          content: string
-          excerpt: string | null
-          slug: string
-          image_url: string | null
-          category_id: string
-          is_featured: boolean
-          is_published: boolean
-          publish_date: string
-          author_id: string | null
-        }
-        Insert: {
-          id?: string
-          created_at?: string
-          updated_at?: string
-          title: string
-          content: string
-          excerpt?: string | null
-          slug: string
-          image_url?: string | null
-          category_id: string
-          is_featured?: boolean
-          is_published?: boolean
-          publish_date: string
-          author_id?: string | null
-        }
-        Update: {
-          id?: string
-          created_at?: string
-          updated_at?: string
-          title?: string
-          content?: string
-          excerpt?: string | null
-          slug?: string
-          image_url?: string | null
-          category_id?: string
-          is_featured?: boolean
-          is_published?: boolean
-          publish_date?: string
-          author_id?: string | null
-        }
-      }
-      news_translations: {
-        Row: {
-          id: string
-          news_id: string
-          language: string
-          title: string
-          content: string
-          excerpt: string | null
-          slug: string
-          created_at: string
-          updated_at: string
-        }
-        Insert: {
-          id?: string
-          news_id: string
-          language: string
-          title: string
-          content: string
-          excerpt?: string | null
-          slug: string
-          created_at?: string
-          updated_at?: string
-        }
-        Update: {
-          id?: string
-          news_id?: string
-          language?: string
-          title?: string
-          content?: string
-          excerpt?: string | null
-          slug?: string
-          created_at?: string
-          updated_at?: string
-        }
-      }
-      categories: {
-        Row: {
-          id: string
-          name: string
-          slug: string
-          created_at: string
-          updated_at: string
-        }
-        Insert: {
-          id?: string
-          name: string
-          slug: string
-          created_at?: string
-          updated_at?: string
-        }
-        Update: {
-          id?: string
-          name?: string
-          slug?: string
-          created_at?: string
-          updated_at?: string
-        }
-      }
-      category_translations: {
-        Row: {
-          id: string
-          category_id: string
-          language: string
-          name: string
-          slug: string
-          created_at: string
-          updated_at: string
-        }
-        Insert: {
-          id?: string
-          category_id: string
-          language: string
-          name: string
-          slug: string
-          created_at?: string
-          updated_at?: string
-        }
-        Update: {
-          id?: string
-          category_id?: string
-          language?: string
-          name?: string
-          slug?: string
-          created_at?: string
-          updated_at?: string
-        }
-      }
-      tags: {
-        Row: {
-          id: string
-          name: string
-          slug: string
-          created_at: string
-        }
-        Insert: {
-          id?: string
-          name: string
-          slug: string
-          created_at?: string
-        }
-        Update: {
-          id?: string
-          name?: string
-          slug?: string
-          created_at?: string
-        }
-      }
-      news_tags: {
-        Row: {
-          id: string
-          news_id: string
-          tag_id: string
-          created_at: string
-        }
-        Insert: {
-          id?: string
-          news_id: string
-          tag_id: string
-          created_at?: string
-        }
-        Update: {
-          id?: string
-          news_id?: string
-          tag_id?: string
-          created_at?: string
-        }
-      }
-      media_files: {
-        Row: {
-          id: string
-          name: string
-          file_path: string
-          file_type: string
-          file_size: number
-          width: number | null
-          height: number | null
-          alt_text: string | null
+          created_at: string | null
+          title: string | null
           description: string | null
-          uploaded_by: string
-          is_public: boolean
-          folder_id: string | null
-          created_at: string
-          updated_at: string
+          program_id: string | null
+          image_url: string | null
+          audio_url: string | null
+          published_at: string | null
+          published: boolean | null
+          language_id: string | null
         }
         Insert: {
           id?: string
-          name: string
-          file_path: string
-          file_type: string
-          file_size: number
-          width?: number | null
-          height?: number | null
-          alt_text?: string | null
+          created_at?: string | null
+          title?: string | null
           description?: string | null
-          uploaded_by: string
-          is_public?: boolean
-          folder_id?: string | null
-          created_at?: string
-          updated_at?: string
+          program_id?: string | null
+          image_url?: string | null
+          audio_url: string
+          published_at?: string | null
+          published?: boolean | null
+          language_id: string
         }
         Update: {
           id?: string
-          name?: string
-          file_path?: string
-          file_type?: string
-          file_size?: number
-          width?: number | null
-          height?: number | null
-          alt_text?: string | null
+          created_at?: string | null
+          title?: string | null
           description?: string | null
-          uploaded_by?: string
-          is_public?: boolean
-          folder_id?: string | null
-          created_at?: string
-          updated_at?: string
+          program_id?: string | null
+          image_url?: string | null
+          audio_url?: string | null
+          published_at?: string | null
+          published?: boolean | null
+          language_id?: string | null
         }
       }
-      media_folders: {
+      pages: {
         Row: {
           id: string
-          name: string
-          parent_id: string | null
-          created_by: string
-          created_at: string
-          updated_at: string
+          created_at: string | null
+          title: string | null
+          slug: string | null
+          content: string | null
+          meta_title: string | null
+          meta_description: string | null
+          featured_image: string | null
+          published: boolean | null
+          language_id: string | null
         }
         Insert: {
           id?: string
-          name: string
-          parent_id?: string | null
-          created_by: string
-          created_at?: string
-          updated_at?: string
-        }
-        Update: {
-          id?: string
-          name?: string
-          parent_id?: string | null
-          created_by?: string
-          created_at?: string
-          updated_at?: string
-        }
-      }
-      languages: {
-        Row: {
-          code: string
-          name: string
-          is_default: boolean
-          created_at: string
-        }
-        Insert: {
-          code: string
-          name: string
-          is_default?: boolean
-          created_at?: string
-        }
-        Update: {
-          code?: string
-          name?: string
-          is_default?: boolean
-          created_at?: string
-        }
-      }
-      users: {
-        Row: {
-          id: string
-          email: string
-          role: string
-          created_at: string
-        }
-        Insert: {
-          id: string
-          email: string
-          role?: string
-          created_at?: string
-        }
-        Update: {
-          id?: string
-          email?: string
-          role?: string
-          created_at?: string
-        }
-      }
-      music: {
-        Row: {
-          id: string
+          created_at?: string | null
           title: string
-          artist_id: string | null
-          album: string | null
-          release_date: string | null
-          duration: number | null
-          file_path: string
-          cover_image: string | null
-          created_at: string
-          updated_at: string
-        }
-        Insert: {
-          id?: string
-          title: string
-          artist_id?: string | null
-          album?: string | null
-          release_date?: string | null
-          duration?: number | null
-          file_path: string
-          cover_image?: string | null
-          created_at?: string
-          updated_at?: string
+          slug: string
+          content?: string | null
+          meta_title?: string | null
+          meta_description?: string | null
+          featured_image?: string | null
+          published?: boolean | null
+          language_id: string
         }
         Update: {
           id?: string
-          title?: string
-          artist_id?: string | null
-          album?: string | null
-          release_date?: string | null
-          duration?: number | null
-          file_path?: string
-          cover_image?: string | null
-          created_at?: string
-          updated_at?: string
+          created_at?: string | null
+          title?: string | null
+          slug?: string | null
+          content?: string | null
+          meta_title?: string | null
+          meta_description?: string | null
+          featured_image?: string | null
+          published?: boolean | null
+          language_id?: string | null
         }
       }
-      artists: {
+      radio_info: {
         Row: {
           id: string
-          name: string
-          bio: string | null
-          image: string | null
-          created_at: string
-          updated_at: string
+          current_track: string | null
         }
         Insert: {
           id?: string
-          name: string
-          bio?: string | null
-          image?: string | null
-          created_at?: string
-          updated_at?: string
+          current_track?: string | null
         }
         Update: {
           id?: string
-          name?: string
-          bio?: string | null
-          image?: string | null
-          created_at?: string
-          updated_at?: string
+          current_track?: string | null
         }
       }
       programs: {
@@ -362,54 +98,216 @@ export interface Database {
           id: string
           title: string
           description: string | null
+          host: string | null
+          duration: number | null
           image: string | null
-          created_at: string
-          updated_at: string
         }
         Insert: {
           id?: string
           title: string
           description?: string | null
+          host?: string | null
+          duration?: number | null
           image?: string | null
-          created_at?: string
-          updated_at?: string
         }
         Update: {
           id?: string
           title?: string
           description?: string | null
+          host?: string | null
+          duration?: number | null
           image?: string | null
-          created_at?: string
-          updated_at?: string
         }
       }
-      program_translations: {
+      languages: {
         Row: {
           id: string
-          program_id: string
-          language: string
-          title: string
-          description: string | null
-          created_at: string
-          updated_at: string
+          name: string
+          code: string
         }
         Insert: {
           id?: string
-          program_id: string
-          language: string
-          title: string
-          description?: string | null
-          created_at?: string
-          updated_at?: string
+          name: string
+          code: string
         }
         Update: {
           id?: string
-          program_id?: string
-          language?: string
+          name?: string
+          code?: string
+        }
+      }
+      radio_shows: {
+        Row: {
+          id: string
+          title: string
+          description: string | null
+          host: string | null
+          duration: number | null
+          image: string | null
+          schedule: string | string[] | null
+        }
+        Insert: {
+          id?: string
+          title: string
+          description?: string | null
+          host?: string | null
+          duration?: number | null
+          image?: string | null
+          schedule?: string | string[] | null
+        }
+        Update: {
+          id?: string
           title?: string
           description?: string | null
+          host?: string | null
+          duration?: number | null
+          image?: string | null
+          schedule?: string | string[] | null
+        }
+      }
+      news: {
+        Row: {
+          id: string
+          title: string
+          excerpt: string | null
+          image: string | null
+          category: string | null
+          date: string | null
+          published: boolean | null
+          published_at: string | null
+        }
+        Insert: {
+          id?: string
+          title: string
+          excerpt?: string | null
+          image?: string | null
+          category?: string | null
+          date?: string | null
+          published?: boolean | null
+          published_at?: string | null
+        }
+        Update: {
+          id?: string
+          title?: string
+          excerpt?: string | null
+          image?: string | null
+          category?: string | null
+          date?: string | null
+          published?: boolean | null
+          published_at?: string | null
+        }
+      }
+      tracks: {
+        Row: {
+          id: string
+          title: string
+          artist_name: string
+          album: string | null
+          duration: number
+          image_url: string | null
+          audio_url: string
+          plays: number
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          title: string
+          artist_name: string
+          album?: string | null
+          duration: number
+          image_url?: string | null
+          audio_url: string
+          plays?: number
           created_at?: string
-          updated_at?: string
+        }
+        Update: {
+          id?: string
+          title?: string
+          artist_name?: string
+          album?: string | null
+          duration?: number
+          image_url?: string | null
+          audio_url?: string
+          plays?: number
+          created_at?: string
+        }
+      }
+      artists: {
+        Row: {
+          id: string
+          name: string
+          slug: string | null
+          image_url: string | null
+          genre: string | null
+          bio: Json | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          name: string
+          slug?: string | null
+          image_url?: string | null
+          genre?: string | null
+          bio?: Json | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          name?: string
+          slug?: string | null
+          image_url?: string | null
+          genre?: string | null
+          bio?: Json | null
+          created_at?: string
+        }
+      }
+      playlists: {
+        Row: {
+          id: string
+          title: string
+          description: string | null
+          image_url: string | null
+          tracks_count: number
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          title: string
+          description?: string | null
+          image_url?: string | null
+          tracks_count?: number
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          title?: string
+          description?: string | null
+          image_url?: string | null
+          tracks_count?: number
+          created_at?: string
+        }
+      }
+      playlist_tracks: {
+        Row: {
+          id: string
+          playlist_id: string
+          track_id: string
+          position: number | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          playlist_id: string
+          track_id: string
+          position?: number | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          playlist_id?: string
+          track_id?: string
+          position?: number | null
+          created_at?: string
         }
       }
     }
@@ -422,28 +320,9 @@ export interface Database {
     Enums: {
       [_ in never]: never
     }
+    CompositeTypes: {
+      [_ in never]: never
+    }
   }
-}
-
-export type NewsItem = Database["public"]["Tables"]["news"]["Row"]
-export type NewsInsert = Database["public"]["Tables"]["news"]["Insert"]
-export type NewsUpdate = Database["public"]["Tables"]["news"]["Update"]
-export type NewsTranslation = Database["public"]["Tables"]["news_translations"]["Row"]
-export type Category = Database["public"]["Tables"]["categories"]["Row"]
-export type CategoryTranslation = Database["public"]["Tables"]["category_translations"]["Row"]
-export type Tag = Database["public"]["Tables"]["tags"]["Row"]
-export type NewsTag = Database["public"]["Tables"]["news_tags"]["Row"]
-export type MediaFile = Database["public"]["Tables"]["media_files"]["Row"]
-export type MediaFolder = Database["public"]["Tables"]["media_folders"]["Row"]
-export type Language = Database["public"]["Tables"]["languages"]["Row"]
-export type User = Database["public"]["Tables"]["users"]["Row"]
-export type Music = Database["public"]["Tables"]["music"]["Row"]
-export type Artist = Database["public"]["Tables"]["artists"]["Row"]
-export type Program = Database["public"]["Tables"]["programs"]["Row"]
-export type ProgramTranslation = Database["public"]["Tables"]["program_translations"]["Row"]
-
-export interface MediaFileWithUrl extends MediaFile {
-  url: string
-  thumbnail_url?: string
 }
 
