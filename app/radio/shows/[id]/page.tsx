@@ -1,90 +1,123 @@
-import { getRadioShowById, getRadioStreamUrl } from "@/lib/services/radio-service"
-import { RadioPlayer } from "@/components/radio/radio-player"
-import { Calendar, Clock, User } from "lucide-react"
-import Image from "next/image"
-import { notFound } from "next/navigation"
+export const dynamic = "force-dynamic"
 
-interface RadioShowPageProps {
-  params: {
-    id: string
+import { createClient } from "@/lib/supabase/server"
+import { Card, CardContent } from "@/components/ui/card"
+import Link from "next/link"
+import { Button } from "@/components/ui/button"
+import { ArrowLeft, Calendar, Clock, User } from "lucide-react"
+
+export default async function RadioShowDetailPage({ params }: { params: { id: string } }) {
+  const supabase = createClient()
+
+  // Отримуємо радіо-шоу з бази даних
+  const { data: show, error } = await supabase.from("radio_shows").select("*").eq("id", params.id).single()
+
+  if (error) {
+    console.error("Error fetching radio show:", error)
   }
-}
 
-export default async function RadioShowPage({ params }: RadioShowPageProps) {
-  try {
-    const show = await getRadioShowById(params.id)
-    const streamUrl = await getRadioStreamUrl()
+  // Отримуємо епізоди цього шоу
+  const { data: episodes, error: episodesError } = await supabase
+    .from("episodes")
+    .select("*")
+    .eq("program_id", params.id)
+    .eq("published", true)
+    .order("published_at", { ascending: false })
 
-    return (
-      <div className="container py-8 space-y-8">
-        <div className="grid gap-8 md:grid-cols-2">
-          <div className="relative h-64 md:h-full rounded-lg overflow-hidden">
-            {show.imageUrl ? (
-              <Image src={show.imageUrl || "/placeholder.svg"} alt={show.title} fill className="object-cover" />
-            ) : (
-              <div className="w-full h-full bg-muted flex items-center justify-center">
-                <Calendar className="text-muted-foreground" size={64} />
-              </div>
-            )}
+  if (episodesError) {
+    console.error("Error fetching episodes:", episodesError)
+  }
+
+  return (
+    <main className="container mx-auto py-8 px-4">
+      <Link href="/radio/shows">
+        <Button variant="ghost" className="mb-6">
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          Назад до всіх шоу
+        </Button>
+      </Link>
+
+      {show ? (
+        <div className="grid gap-8 md:grid-cols-3">
+          <div className="md:col-span-1">
+            <img
+              src={show.image || "/placeholder.svg?height=400&width=400"}
+              alt={show.title || ""}
+              className="w-full rounded-lg"
+            />
           </div>
 
-          <div>
-            <h1 className="text-3xl font-bold">{show.title}</h1>
+          <div className="md:col-span-2">
+            <h1 className="text-3xl font-bold mb-4">{show.title}</h1>
 
-            {show.host && (
-              <div className="flex items-center gap-2 mt-4 text-muted-foreground">
-                <User size={18} />
-                <span className="text-lg">Ведучий: {show.host}</span>
-              </div>
-            )}
-
-            {show.schedule && show.schedule.length > 0 && (
-              <div className="mt-4 space-y-2">
-                <h3 className="font-medium">Розклад трансляцій:</h3>
-
-                <div className="space-y-2">
-                  {show.schedule.map((s, index) => (
-                    <div key={index} className="flex flex-col p-3 border rounded-md">
-                      <div className="flex items-center gap-2 text-muted-foreground">
-                        <Calendar size={16} />
-                        <span>
-                          {s.days
-                            .map((day) => {
-                              const days = ["Неділя", "Понеділок", "Вівторок", "Середа", "Четвер", "П'ятниця", "Субота"]
-                              return days[day]
-                            })
-                            .join(", ")}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-2 mt-1 text-muted-foreground">
-                        <Clock size={16} />
-                        <span>
-                          {s.startTime} - {s.endTime}
-                        </span>
-                      </div>
-                    </div>
-                  ))}
+            <div className="flex flex-wrap gap-4 mb-6">
+              {show.host && (
+                <div className="flex items-center text-sm">
+                  <User className="mr-2 h-4 w-4 text-muted-foreground" />
+                  <span>Ведучий: {show.host}</span>
                 </div>
-              </div>
-            )}
+              )}
 
-            <div className="mt-6">
-              <RadioPlayer streamUrl={streamUrl} compact />
+              {show.schedule && (
+                <div className="flex items-center text-sm">
+                  <Calendar className="mr-2 h-4 w-4 text-muted-foreground" />
+                  <span>
+                    Розклад:{" "}
+                    {typeof show.schedule === "string"
+                      ? show.schedule
+                      : Array.isArray(show.schedule)
+                        ? show.schedule.join(", ")
+                        : ""}
+                  </span>
+                </div>
+              )}
+
+              {show.duration && (
+                <div className="flex items-center text-sm">
+                  <Clock className="mr-2 h-4 w-4 text-muted-foreground" />
+                  <span>Тривалість: {show.duration} хв.</span>
+                </div>
+              )}
+            </div>
+
+            <div className="prose max-w-none mb-8">
+              <p>{show.description || "Немає опису"}</p>
             </div>
           </div>
         </div>
+      ) : (
+        <div className="text-center py-12 text-muted-foreground">Шоу не знайдено</div>
+      )}
 
-        <div className="mt-8">
-          <h2 className="text-2xl font-semibold mb-4">Про програму</h2>
-          <div className="prose max-w-none">
-            <p>{show.description}</p>
-          </div>
-        </div>
+      <h2 className="text-2xl font-bold mt-12 mb-6">Епізоди</h2>
+
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        {episodes && episodes.length > 0 ? (
+          episodes.map((episode) => (
+            <Link href={`/episodes/${episode.id}`} key={episode.id}>
+              <Card className="h-full hover:shadow-md transition-shadow">
+                <div className="aspect-video relative">
+                  <img
+                    src={episode.image_url || "/placeholder.svg?height=300&width=500"}
+                    alt={episode.title || ""}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <CardContent className="p-4">
+                  <h3 className="text-lg font-bold">{episode.title}</h3>
+                  <p className="text-sm text-muted-foreground mt-2">
+                    {new Date(episode.published_at || "").toLocaleDateString()}
+                  </p>
+                  <p className="text-sm mt-2 line-clamp-2">{episode.description || "Немає опису"}</p>
+                </CardContent>
+              </Card>
+            </Link>
+          ))
+        ) : (
+          <div className="col-span-full text-center py-12 text-muted-foreground">Немає епізодів для цього шоу</div>
+        )}
       </div>
-    )
-  } catch (error) {
-    console.error("Error fetching radio show:", error)
-    notFound()
-  }
+    </main>
+  )
 }
 

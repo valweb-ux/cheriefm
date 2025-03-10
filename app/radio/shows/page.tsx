@@ -1,74 +1,53 @@
-import { getRadioShows } from "@/lib/services/radio-service"
+export const dynamic = "force-dynamic"
+
+import { createClient } from "@/lib/supabase/server"
 import { Card, CardContent } from "@/components/ui/card"
-import { Calendar, Clock, User } from "lucide-react"
-import Image from "next/image"
 import Link from "next/link"
 
 export default async function RadioShowsPage() {
-  const shows = await getRadioShows()
+  const supabase = createClient()
+
+  // Отримуємо радіо-шоу з бази даних
+  const { data: shows, error } = await supabase.from("radio_shows").select("*").order("title")
+
+  if (error) {
+    console.error("Error fetching radio shows:", error)
+  }
 
   return (
-    <div className="container py-8 space-y-8">
-      <div>
-        <h1 className="text-3xl font-bold">Наші програми</h1>
-        <p className="text-muted-foreground mt-2">Ознайомтеся з програмами, які ми транслюємо на Chérie FM</p>
-      </div>
+    <main className="container mx-auto py-8 px-4">
+      <h1 className="text-3xl font-bold mb-8">Радіо-шоу</h1>
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {shows.map((show) => (
-          <Card key={show.id} className="overflow-hidden">
-            <div className="relative h-48 w-full">
-              {show.imageUrl ? (
-                <Image src={show.imageUrl || "/placeholder.svg"} alt={show.title} fill className="object-cover" />
-              ) : (
-                <div className="w-full h-full bg-muted flex items-center justify-center">
-                  <Calendar className="text-muted-foreground" size={48} />
+        {shows && shows.length > 0 ? (
+          shows.map((show) => (
+            <Link href={`/radio/shows/${show.id}`} key={show.id}>
+              <Card className="h-full hover:shadow-md transition-shadow">
+                <div className="aspect-video relative">
+                  <img
+                    src={show.image || "/placeholder.svg?height=300&width=500"}
+                    alt={show.title || ""}
+                    className="w-full h-full object-cover"
+                  />
                 </div>
-              )}
-            </div>
-
-            <CardContent className="p-4">
-              <h2 className="text-xl font-semibold">{show.title}</h2>
-
-              {show.host && (
-                <div className="flex items-center gap-2 mt-2 text-sm text-muted-foreground">
-                  <User size={16} />
-                  <span>{show.host}</span>
-                </div>
-              )}
-
-              {show.schedule && show.schedule.length > 0 && (
-                <div className="mt-2 text-sm text-muted-foreground">
-                  <div className="flex items-center gap-2">
-                    <Calendar size={16} />
-                    <span>
-                      {show.schedule
-                        .map((s) => {
-                          const days = ["Нд", "Пн", "Вт", "Ср", "Чт", "Пт", "Сб"]
-                          return s.days.map((day) => days[day]).join(", ")
-                        })
-                        .join("; ")}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2 mt-1">
-                    <Clock size={16} />
-                    <span>{show.schedule.map((s) => `${s.startTime} - ${s.endTime}`).join("; ")}</span>
-                  </div>
-                </div>
-              )}
-
-              <p className="mt-3 text-sm line-clamp-3">{show.description}</p>
-
-              <div className="mt-4">
-                <Link href={`/radio/shows/${show.id}`} className="text-primary hover:underline text-sm font-medium">
-                  Детальніше
-                </Link>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+                <CardContent className="p-4">
+                  <h2 className="text-xl font-bold">{show.title}</h2>
+                  <p className="text-sm text-muted-foreground mt-2">Ведучий: {show.host || "Не вказано"}</p>
+                  {show.schedule && typeof show.schedule === "string" && (
+                    <p className="text-sm mt-2">Розклад: {show.schedule}</p>
+                  )}
+                  {show.schedule && Array.isArray(show.schedule) && (
+                    <p className="text-sm mt-2">Розклад: {show.schedule.join(", ")}</p>
+                  )}
+                </CardContent>
+              </Card>
+            </Link>
+          ))
+        ) : (
+          <div className="col-span-full text-center py-12 text-muted-foreground">Немає радіо-шоу</div>
+        )}
       </div>
-    </div>
+    </main>
   )
 }
 
