@@ -46,9 +46,14 @@ export function EpisodesTable({ episodes, programs }: EpisodesTableProps) {
 
   const confirmDelete = async () => {
     if (episodeToDelete) {
-      await deleteEpisode(episodeToDelete)
-      router.refresh()
-      setDeleteDialogOpen(false)
+      try {
+        await deleteEpisode(episodeToDelete)
+        router.refresh()
+        setDeleteDialogOpen(false)
+      } catch (error) {
+        console.error("Error deleting episode:", error)
+        // Тут можна додати відображення помилки для користувача
+      }
     }
   }
 

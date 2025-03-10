@@ -38,6 +38,8 @@ interface EpisodeFormProps {
 export function EpisodeForm({ episode, programs, languages }: EpisodeFormProps) {
   const router = useRouter()
   const [activeLanguage, setActiveLanguage] = useState(languages[0]?.id || "")
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [submitError, setSubmitError] = useState<string | null>(null)
 
   const defaultValues: Partial<EpisodeFormValues> = {
     title: episode?.title || "",
@@ -56,6 +58,9 @@ export function EpisodeForm({ episode, programs, languages }: EpisodeFormProps) 
   })
 
   async function onSubmit(data: EpisodeFormValues) {
+    setIsSubmitting(true)
+    setSubmitError(null)
+
     try {
       if (episode) {
         await updateEpisode(episode.id, data)
@@ -66,6 +71,9 @@ export function EpisodeForm({ episode, programs, languages }: EpisodeFormProps) 
       router.refresh()
     } catch (error) {
       console.error("Error saving episode:", error)
+      setSubmitError(error instanceof Error ? error.message : "Помилка при збереженні епізоду")
+    } finally {
+      setIsSubmitting(false)
     }
   }
 
@@ -192,7 +200,18 @@ export function EpisodeForm({ episode, programs, languages }: EpisodeFormProps) 
               )}
             />
 
-            <Button type="submit">Save Episode</Button>
+            {submitError && (
+              <div
+                className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded relative mt-4"
+                role="alert"
+              >
+                <span className="block sm:inline">{submitError}</span>
+              </div>
+            )}
+
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting ? "Збереження..." : "Зберегти епізод"}
+            </Button>
           </form>
         </Form>
       </CardContent>
