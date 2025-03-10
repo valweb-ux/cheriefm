@@ -52,7 +52,7 @@ export default async function PlaylistPage({ params }: PlaylistPageProps) {
         {
           id: "1",
           title: "Пісня 1",
-          artist: "Виконавець 1",
+          artist_name: "Виконавець 1",
           album: "Альбом 1",
           duration: 180,
           image_url: "/placeholder.svg?height=300&width=300",
@@ -61,7 +61,7 @@ export default async function PlaylistPage({ params }: PlaylistPageProps) {
         {
           id: "2",
           title: "Пісня 2",
-          artist: "Виконавець 2",
+          artist_name: "Виконавець 2",
           album: "Альбом 2",
           duration: 210,
           image_url: "/placeholder.svg?height=300&width=300",
@@ -70,7 +70,7 @@ export default async function PlaylistPage({ params }: PlaylistPageProps) {
         {
           id: "3",
           title: "Пісня 3",
-          artist: "Виконавець 3",
+          artist_name: "Виконавець 3",
           album: "Альбом 3",
           duration: 240,
           image_url: "/placeholder.svg?height=300&width=300",

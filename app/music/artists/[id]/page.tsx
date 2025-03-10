@@ -27,7 +27,7 @@ export default async function ArtistPage({ params }: ArtistPageProps) {
   const { data: tracks, error: tracksError } = await supabase
     .from("tracks")
     .select("*")
-    .eq("artist", artist?.name || "")
+    .eq("artist_name", artist?.name || "")
     .catch(() => ({ data: null, error: { message: "Помилка при отриманні треків артиста" } }))
 
   // Якщо артист не знайдений, повертаємо 404
@@ -48,7 +48,7 @@ export default async function ArtistPage({ params }: ArtistPageProps) {
     {
       id: "1",
       title: "Пісня 1",
-      artist: artistData.name,
+      artist_name: artistData.name,
       album: "Альбом 1",
       duration: 180,
       image_url: "/placeholder.svg?height=300&width=300",
@@ -57,7 +57,7 @@ export default async function ArtistPage({ params }: ArtistPageProps) {
     {
       id: "2",
       title: "Пісня 2",
-      artist: artistData.name,
+      artist_name: artistData.name,
       album: "Альбом 2",
       duration: 210,
       image_url: "/placeholder.svg?height=300&width=300",
@@ -66,7 +66,7 @@ export default async function ArtistPage({ params }: ArtistPageProps) {
     {
       id: "3",
       title: "Пісня 3",
-      artist: artistData.name,
+      artist_name: artistData.name,
       album: "Альбом 3",
       duration: 240,
       image_url: "/placeholder.svg?height=300&width=300",
