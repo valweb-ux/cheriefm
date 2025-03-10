@@ -195,6 +195,116 @@ export type Database = {
           published_at?: string | null;
         };
       };
+      tracks: {
+        Row: {
+          id: string;
+          title: string;
+          artist: string;
+          album: string | null;
+          duration: number;
+          image_url: string | null;
+          audio_url: string;
+          plays: number;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          title: string;
+          artist: string;
+          album?: string | null;
+          duration: number;
+          image_url?: string | null;
+          audio_url: string;
+          plays?: number;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          title?: string;
+          artist?: string;
+          album?: string | null;
+          duration?: number;
+          image_url?: string | null;
+          audio_url?: string;
+          plays?: number;
+          created_at?: string;
+        };
+      };
+      artists: {
+        Row: {
+          id: string;
+          name: string;
+          image_url: string | null;
+          genre: string | null;
+          bio: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          name: string;
+          image_url?: string | null;
+          genre?: string | null;
+          bio?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          name?: string;
+          image_url?: string | null;
+          genre?: string | null;
+          bio?: string | null;
+          created_at?: string;
+        };
+      };
+      playlists: {
+        Row: {
+          id: string;
+          title: string;
+          description: string | null;
+          image_url: string | null;
+          tracks_count: number;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          title: string;
+          description?: string | null;
+          image_url?: string | null;
+          tracks_count?: number;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          title?: string;
+          description?: string | null;
+          image_url?: string | null;
+          tracks_count?: number;
+          created_at?: string;
+        };
+      };
+      playlist_tracks: {
+        Row: {
+          id: string;
+          playlist_id: string;
+          track_id: string;
+          position: number | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          playlist_id: string;
+          track_id: string;
+          position?: number | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          playlist_id?: string;
+          track_id?: string;
+          position?: number | null;
+          created_at?: string;
+        };
+      };
     }
     Views: {
       [_ in never]: never
