@@ -9,7 +9,7 @@ import { formatTime } from "@/lib/utils"
 interface Track {
   id: string
   title: string
-  artist: string
+  artist_name: string
   album?: string
   duration: number
   image_url: string
@@ -63,7 +63,7 @@ export function MusicPlayer({ tracks }: MusicPlayerProps) {
         />
         <div className="flex-1 min-w-0">
           <h3 className="font-bold truncate">{currentTrack.title}</h3>
-          <p className="text-sm text-muted-foreground truncate">{currentTrack.artist}</p>
+          <p className="text-sm text-muted-foreground truncate">{currentTrack.artist_name}</p>
           {currentTrack.album && <p className="text-xs text-muted-foreground truncate">{currentTrack.album}</p>}
         </div>
       </div>
@@ -113,7 +113,7 @@ export function MusicPlayer({ tracks }: MusicPlayerProps) {
               />
               <div className="flex-1 min-w-0">
                 <p className="font-medium truncate">{track.title}</p>
-                <p className="text-xs text-muted-foreground truncate">{track.artist}</p>
+                <p className="text-xs text-muted-foreground truncate">{track.artist_name}</p>
               </div>
               <span className="text-xs text-muted-foreground">{formatTime(track.duration)}</span>
             </li>
