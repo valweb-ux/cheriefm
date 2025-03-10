@@ -1,28 +1,31 @@
-export const dynamic = "force-static"
-
 import { NextResponse } from "next/server"
+import { createClient } from "@/lib/supabase/server"
+
+export const dynamic = "force-dynamic" // Змінюємо на динамічний режим для отримання актуальних даних
 
 export async function GET() {
-  // Статична заглушка для новин
-  const news = [
-    {
-      id: "1",
-      title: "Новина 1",
-      excerpt: "Короткий опис новини 1",
-      image: "/placeholder.svg?height=300&width=300",
-      category: "Музика",
-      date: new Date().toISOString(),
-    },
-    {
-      id: "2",
-      title: "Новина 2",
-      excerpt: "Короткий опис новини 2",
-      image: "/placeholder.svg?height=300&width=300",
-      category: "Культура",
-      date: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-    },
-  ]
+  try {
+    const supabase = createClient()
 
-  return NextResponse.json(news)
+    // Спробуємо отримати новини з бази даних
+    const { data, error } = await supabase
+      .from("news")
+      .select("*")
+      .eq("published", true)
+      .order("published_at", { ascending: false })
+
+    if (error) {
+      console.error("Error fetching news:", error)
+      return NextResponse.json({ error: "Failed to fetch news", details: error.message }, { status: 500 })
+    }
+
+    return NextResponse.json(data || [])
+  } catch (err) {
+    console.error("Unexpected error in news API:", err)
+    return NextResponse.json(
+      { error: "Internal server error", details: err instanceof Error ? err.message : "Unknown error" },
+      { status: 500 },
+    )
+  }
 }
 
