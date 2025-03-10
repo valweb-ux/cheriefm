@@ -13,6 +13,7 @@ export default async function HomePage() {
     .eq("published", true)
     .order("published_at", { ascending: false })
     .limit(6)
+    .catch(() => ({ data: [] }))
 
   // Отримуємо останні новини
   const { data: latestNews } = await supabase
@@ -21,6 +22,7 @@ export default async function HomePage() {
     .eq("published", true)
     .order("published_at", { ascending: false })
     .limit(3)
+    .catch(() => ({ data: [] }))
 
   return (
     <main className="container mx-auto py-8 px-4">

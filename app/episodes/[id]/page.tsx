@@ -9,7 +9,12 @@ export default async function EpisodeDetailPage({ params }: { params: { id: stri
   const supabase = createClient()
 
   // Отримуємо епізод з бази даних
-  const { data: episode, error } = await supabase.from("episodes").select("*, programs(*)").eq("id", params.id).single()
+  const { data: episode, error } = await supabase
+    .from("episodes")
+    .select("*, programs(*)")
+    .eq("id", params.id)
+    .single()
+    .catch(() => ({ data: null, error: { message: "Помилка при отриманні епізоду" } }))
 
   if (error) {
     console.error("Error fetching episode:", error)

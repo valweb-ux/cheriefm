@@ -89,7 +89,7 @@ export default async function ArtistPage({ params }: ArtistPageProps) {
           {artistData.genre && <p className="text-lg text-muted-foreground mb-4">{artistData.genre}</p>}
           {artistData.bio && (
             <div className="prose max-w-none">
-              <p>{artistData.bio}</p>
+              <p>{typeof artistData.bio === "string" ? artistData.bio : artistData.bio?.text || ""}</p>
             </div>
           )}
         </div>

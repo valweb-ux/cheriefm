@@ -7,9 +7,15 @@ export default async function AdminDashboardPage() {
   const supabase = createClient()
 
   // Отримуємо статистику з бази даних
-  const { data: episodesCount } = await supabase.from("episodes").select("id", { count: "exact", head: true })
+  const { data: episodesCount, count } = await supabase
+    .from("episodes")
+    .select("id", { count: "exact", head: true })
+    .catch(() => ({ data: null, count: 0 }))
 
-  const { data: pagesCount } = await supabase.from("pages").select("id", { count: "exact", head: true })
+  const { data: pagesCount, count: pagesCountNum } = await supabase
+    .from("pages")
+    .select("id", { count: "exact", head: true })
+    .catch(() => ({ data: null, count: 0 }))
 
   // Отримуємо останні епізоди
   const { data: latestEpisodes } = await supabase
@@ -17,6 +23,7 @@ export default async function AdminDashboardPage() {
     .select("*")
     .order("created_at", { ascending: false })
     .limit(5)
+    .catch(() => ({ data: [] }))
 
   return (
     <div className="space-y-6">
@@ -28,7 +35,7 @@ export default async function AdminDashboardPage() {
             <CardTitle className="text-sm font-medium">Всього епізодів</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{episodesCount?.count || 0}</div>
+            <div className="text-2xl font-bold">{count || 0}</div>
           </CardContent>
         </Card>
 
@@ -37,7 +44,7 @@ export default async function AdminDashboardPage() {
             <CardTitle className="text-sm font-medium">Всього сторінок</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{pagesCount?.count || 0}</div>
+            <div className="text-2xl font-bold">{pagesCountNum || 0}</div>
           </CardContent>
         </Card>
 

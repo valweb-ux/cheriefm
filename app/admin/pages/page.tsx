@@ -10,7 +10,11 @@ export default async function PagesPage() {
   const supabase = createClient()
 
   // Отримуємо сторінки з бази даних
-  const { data: pages } = await supabase.from("pages").select("*").order("title")
+  const { data: pages } = await supabase
+    .from("pages")
+    .select("*")
+    .order("title")
+    .catch(() => ({ data: [] }))
 
   return (
     <div className="space-y-6">

@@ -26,7 +26,7 @@ export default async function PlaylistPage({ params }: PlaylistPageProps) {
   // Отримуємо треки плейлиста
   const { data: playlistTracks, error: tracksError } = await supabase
     .from("playlist_tracks")
-    .select("*, track:track_id(*)")
+    .select("*, tracks!inner(*)")
     .eq("playlist_id", params.id)
     .order("position")
     .catch(() => ({ data: null, error: { message: "Помилка при отриманні треків плейлиста" } }))
@@ -47,7 +47,7 @@ export default async function PlaylistPage({ params }: PlaylistPageProps) {
 
   // Перетворюємо дані треків у формат, який очікує MusicPlayer
   const tracks = playlistTracks
-    ? playlistTracks.map((pt) => pt.track)
+    ? playlistTracks.map((pt) => pt.tracks)
     : [
         {
           id: "1",

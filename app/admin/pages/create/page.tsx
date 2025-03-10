@@ -7,7 +7,11 @@ export default async function CreatePagePage() {
   const supabase = createClient()
 
   // Отримуємо мови з бази даних
-  const { data: languages } = await supabase.from("languages").select("*").order("name")
+  const { data: languages } = await supabase
+    .from("languages")
+    .select("*")
+    .order("name")
+    .catch(() => ({ data: [] }))
 
   return (
     <div className="space-y-6">

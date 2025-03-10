@@ -7,10 +7,19 @@ export default async function EditPagePage({ params }: { params: { id: string } 
   const supabase = createClient()
 
   // Отримуємо сторінку з бази даних
-  const { data: page } = await supabase.from("pages").select("*").eq("id", params.id).single()
+  const { data: page } = await supabase
+    .from("pages")
+    .select("*")
+    .eq("id", params.id)
+    .single()
+    .catch(() => ({ data: null }))
 
   // Отримуємо мови з бази даних
-  const { data: languages } = await supabase.from("languages").select("*").order("name")
+  const { data: languages } = await supabase
+    .from("languages")
+    .select("*")
+    .order("name")
+    .catch(() => ({ data: [] }))
 
   return (
     <div className="space-y-6">

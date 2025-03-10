@@ -7,10 +7,17 @@ export default async function EpisodesPage() {
   const supabase = createClient()
 
   // Отримуємо епізоди з бази даних
-  const { data: episodes } = await supabase.from("episodes").select("*").order("published_at", { ascending: false })
+  const { data: episodes } = await supabase
+    .from("episodes")
+    .select("*")
+    .order("published_at", { ascending: false })
+    .catch(() => ({ data: [] }))
 
   // Отримуємо програми з бази даних
-  const { data: programs } = await supabase.from("programs").select("*")
+  const { data: programs } = await supabase
+    .from("programs")
+    .select("*")
+    .catch(() => ({ data: [] }))
 
   return (
     <div className="space-y-6">

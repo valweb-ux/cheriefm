@@ -9,7 +9,11 @@ export default async function RadioPage() {
   const supabase = createClient()
 
   // Отримуємо інформацію про радіо
-  const { data: radioInfo } = await supabase.from("radio_info").select("*").single()
+  const { data: radioInfo } = await supabase
+    .from("radio_info")
+    .select("*")
+    .single()
+    .catch(() => ({ data: null }))
 
   // Отримуємо радіо-шоу
   const { data: shows } = await supabase.from("radio_shows").select("*").order("title").limit(6)

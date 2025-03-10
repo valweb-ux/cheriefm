@@ -7,13 +7,26 @@ export default async function EditEpisodePage({ params }: { params: { id: string
   const supabase = createClient()
 
   // Отримуємо епізод з бази даних
-  const { data: episode } = await supabase.from("episodes").select("*").eq("id", params.id).single()
+  const { data: episode } = await supabase
+    .from("episodes")
+    .select("*")
+    .eq("id", params.id)
+    .single()
+    .catch(() => ({ data: null }))
 
   // Отримуємо програми з бази даних
-  const { data: programs } = await supabase.from("programs").select("*").order("title")
+  const { data: programs } = await supabase
+    .from("programs")
+    .select("*")
+    .order("title")
+    .catch(() => ({ data: [] }))
 
   // Отримуємо мови з бази даних
-  const { data: languages } = await supabase.from("languages").select("*").order("name")
+  const { data: languages } = await supabase
+    .from("languages")
+    .select("*")
+    .order("name")
+    .catch(() => ({ data: [] }))
 
   return (
     <div className="space-y-6">

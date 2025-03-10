@@ -10,7 +10,12 @@ export default async function RadioShowDetailPage({ params }: { params: { id: st
   const supabase = createClient()
 
   // Отримуємо радіо-шоу з бази даних
-  const { data: show, error } = await supabase.from("radio_shows").select("*").eq("id", params.id).single()
+  const { data: show, error } = await supabase
+    .from("radio_shows")
+    .select("*")
+    .eq("id", params.id)
+    .single()
+    .catch(() => ({ data: null, error: { message: "Помилка при отриманні радіо-шоу" } }))
 
   if (error) {
     console.error("Error fetching radio show:", error)
@@ -23,6 +28,7 @@ export default async function RadioShowDetailPage({ params }: { params: { id: st
     .eq("program_id", params.id)
     .eq("published", true)
     .order("published_at", { ascending: false })
+    .catch(() => ({ data: null, error: { message: "Помилка при отриманні епізодів" } }))
 
   if (episodesError) {
     console.error("Error fetching episodes:", episodesError)
