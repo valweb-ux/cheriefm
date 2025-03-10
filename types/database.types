@@ -234,25 +234,28 @@ export type Database = {
         Row: {
           id: string;
           name: string;
+          slug: string | null;
           image_url: string | null;
           genre: string | null;
-          bio: string | null;
+          bio: any | null; // Змінено на any, оскільки це може бути JSONB
           created_at: string;
         };
         Insert: {
           id?: string;
           name: string;
+          slug?: string | null;
           image_url?: string | null;
           genre?: string | null;
-          bio?: string | null;
+          bio?: any | null; // Змінено на any
           created_at?: string;
         };
         Update: {
           id?: string;
           name?: string;
+          slug?: string | null;
           image_url?: string | null;
           genre?: string | null;
-          bio?: string | null;
+          bio?: any | null; // Змінено на any
           created_at?: string;
         };
       };
@@ -320,5 +323,4 @@ export type Database = {
     }
   }
 }
-export type { Database };
 

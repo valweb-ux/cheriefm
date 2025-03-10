@@ -6,20 +6,19 @@ export interface Database {
       episodes: {
         Row: {
           id: string
-          created_at: string | null
-          title: string | null
+          title: string
           description: string | null
           program_id: string | null
           image_url: string | null
-          audio_url: string | null
+          audio_url: string
           published_at: string | null
           published: boolean | null
           language_id: string | null
+          created_at: string | null
         }
         Insert: {
           id?: string
-          created_at?: string | null
-          title?: string | null
+          title: string
           description?: string | null
           program_id?: string | null
           image_url?: string | null
@@ -27,36 +26,36 @@ export interface Database {
           published_at?: string | null
           published?: boolean | null
           language_id: string
+          created_at?: string | null
         }
         Update: {
           id?: string
-          created_at?: string | null
-          title?: string | null
+          title?: string
           description?: string | null
           program_id?: string | null
           image_url?: string | null
-          audio_url?: string | null
+          audio_url?: string
           published_at?: string | null
           published?: boolean | null
           language_id?: string | null
+          created_at?: string | null
         }
       }
       pages: {
         Row: {
           id: string
-          created_at: string | null
-          title: string | null
-          slug: string | null
+          title: string
+          slug: string
           content: string | null
           meta_title: string | null
           meta_description: string | null
           featured_image: string | null
           published: boolean | null
           language_id: string | null
+          created_at: string | null
         }
         Insert: {
           id?: string
-          created_at?: string | null
           title: string
           slug: string
           content?: string | null
@@ -65,32 +64,48 @@ export interface Database {
           featured_image?: string | null
           published?: boolean | null
           language_id: string
+          created_at?: string | null
         }
         Update: {
           id?: string
-          created_at?: string | null
-          title?: string | null
-          slug?: string | null
+          title?: string
+          slug?: string
           content?: string | null
           meta_title?: string | null
           meta_description?: string | null
           featured_image?: string | null
           published?: boolean | null
           language_id?: string | null
+          created_at?: string | null
         }
       }
       radio_info: {
         Row: {
           id: string
+          title: string
+          description: string | null
+          stream_url: string
+          logo: string | null
           current_track: string | null
+          created_at: string | null
         }
         Insert: {
           id?: string
+          title?: string
+          description?: string | null
+          stream_url?: string
+          logo?: string | null
           current_track?: string | null
+          created_at?: string | null
         }
         Update: {
           id?: string
+          title?: string
+          description?: string | null
+          stream_url?: string
+          logo?: string | null
           current_track?: string | null
+          created_at?: string | null
         }
       }
       programs: {
@@ -101,6 +116,7 @@ export interface Database {
           host: string | null
           duration: number | null
           image: string | null
+          created_at: string | null
         }
         Insert: {
           id?: string
@@ -109,6 +125,7 @@ export interface Database {
           host?: string | null
           duration?: number | null
           image?: string | null
+          created_at?: string | null
         }
         Update: {
           id?: string
@@ -117,6 +134,7 @@ export interface Database {
           host?: string | null
           duration?: number | null
           image?: string | null
+          created_at?: string | null
         }
       }
       languages: {
@@ -124,16 +142,19 @@ export interface Database {
           id: string
           name: string
           code: string
+          created_at: string | null
         }
         Insert: {
           id?: string
           name: string
           code: string
+          created_at?: string | null
         }
         Update: {
           id?: string
           name?: string
           code?: string
+          created_at?: string | null
         }
       }
       radio_shows: {
@@ -144,7 +165,8 @@ export interface Database {
           host: string | null
           duration: number | null
           image: string | null
-          schedule: string | string[] | null
+          schedule: string | null
+          created_at: string | null
         }
         Insert: {
           id?: string
@@ -153,7 +175,8 @@ export interface Database {
           host?: string | null
           duration?: number | null
           image?: string | null
-          schedule?: string | string[] | null
+          schedule?: string | null
+          created_at?: string | null
         }
         Update: {
           id?: string
@@ -162,7 +185,8 @@ export interface Database {
           host?: string | null
           duration?: number | null
           image?: string | null
-          schedule?: string | string[] | null
+          schedule?: string | null
+          created_at?: string | null
         }
       }
       news: {
@@ -170,31 +194,34 @@ export interface Database {
           id: string
           title: string
           excerpt: string | null
+          content: string | null
           image: string | null
           category: string | null
-          date: string | null
           published: boolean | null
           published_at: string | null
+          created_at: string | null
         }
         Insert: {
           id?: string
           title: string
           excerpt?: string | null
+          content?: string | null
           image?: string | null
           category?: string | null
-          date?: string | null
           published?: boolean | null
           published_at?: string | null
+          created_at?: string | null
         }
         Update: {
           id?: string
           title?: string
           excerpt?: string | null
+          content?: string | null
           image?: string | null
           category?: string | null
-          date?: string | null
           published?: boolean | null
           published_at?: string | null
+          created_at?: string | null
         }
       }
       tracks: {

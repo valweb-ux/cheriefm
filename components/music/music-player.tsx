@@ -27,7 +27,17 @@ export function MusicPlayer({ tracks }: MusicPlayerProps) {
   const [volume, setVolume] = useState(80)
   const [currentTime, setCurrentTime] = useState(0)
 
-  const currentTrack = tracks[currentTrackIndex]
+  const currentTrack =
+    tracks && tracks.length > 0
+      ? tracks[currentTrackIndex]
+      : {
+          id: "0",
+          title: "Немає треків",
+          artist_name: "Невідомий",
+          duration: 0,
+          image_url: "/placeholder.svg?height=300&width=300",
+          audio_url: "",
+        }
 
   const togglePlay = () => {
     setIsPlaying(!isPlaying)
