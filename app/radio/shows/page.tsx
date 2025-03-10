@@ -8,7 +8,11 @@ export default async function RadioShowsPage() {
   const supabase = createClient()
 
   // Отримуємо радіо-шоу з бази даних
-  const { data: shows, error } = await supabase.from("radio_shows").select("*").order("title")
+  const { data: shows, error } = await supabase
+    .from("radio_shows")
+    .select("*")
+    .order("title")
+    .catch(() => ({ data: null, error: { message: "Помилка при отриманні радіо-шоу" } }))
 
   if (error) {
     console.error("Error fetching radio shows:", error)

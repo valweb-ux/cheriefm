@@ -1,13 +1,11 @@
+export const dynamic = "force-dynamic"
+
 import { NewsForm } from "@/components/admin/news/news-form"
 
-export default function CreateNewsPage() {
+export default async function CreateNewsPage() {
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Створення новини</h1>
-        <p className="text-muted-foreground">Додайте нову новину на сайт</p>
-      </div>
-
+      <h1 className="text-2xl font-bold">Створити новину</h1>
       <NewsForm />
     </div>
   )

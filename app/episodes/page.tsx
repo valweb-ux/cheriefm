@@ -13,6 +13,7 @@ export default async function EpisodesPage() {
     .select("*, programs(*)")
     .eq("published", true)
     .order("published_at", { ascending: false })
+    .catch(() => ({ data: null, error: { message: "Помилка при отриманні епізодів" } }))
 
   if (error) {
     console.error("Error fetching episodes:", error)
