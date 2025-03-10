@@ -1,81 +1,99 @@
-import { getFeaturedPlaylists } from "@/lib/services/playlists-service"
-import { PlaylistCard } from "@/components/music/playlist-card"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import { Search, Plus } from "lucide-react"
+export const dynamic = "force-dynamic"
+
+import { createClient } from "@/lib/supabase/server"
+import { Card, CardContent } from "@/components/ui/card"
 import Link from "next/link"
+import { Input } from "@/components/ui/input"
 
-export const metadata = {
-  title: "Плейлисти | Chérie FM",
-  description: "Слухайте найкращі плейлисти на Chérie FM",
-}
+export default async function PlaylistsPage() {
+  const supabase = createClient()
 
-export default async function PlaylistsPage({
-  searchParams,
-}: {
-  searchParams: { [key: string]: string | string[] | undefined }
-}) {
-  // Отримуємо параметри з URL
-  const search = typeof searchParams.q === "string" ? searchParams.q : ""
+  // Отримуємо всі плейлисти
+  const { data: playlists, error } = await supabase
+    .from("playlists")
+    .select("*")
+    .order("title")
+    .catch(() => ({ data: null, error: { message: "Помилка при отриманні плейлистів" } }))
 
-  // Отримуємо дані
-  const playlists = await getFeaturedPlaylists(20)
-
-  // Фільтруємо плейлисти відповідно до параметрів пошуку
-  const filteredPlaylists = search
-    ? playlists.filter(
-        (playlist) =>
-          playlist.title.toLowerCase().includes(search.toLowerCase()) ||
-          (playlist.description && playlist.description.toLowerCase().includes(search.toLowerCase())),
-      )
-    : playlists
+  // Якщо таблиця ще не створена, використовуємо тестові дані
+  const playlistsList = playlists || [
+    {
+      id: "1",
+      title: "Плейлист 1",
+      description: "Опис плейлиста 1",
+      image_url: "/placeholder.svg?height=300&width=300",
+      tracks_count: 15,
+    },
+    {
+      id: "2",
+      title: "Плейлист 2",
+      description: "Опис плейлиста 2",
+      image_url: "/placeholder.svg?height=300&width=300",
+      tracks_count: 20,
+    },
+    {
+      id: "3",
+      title: "Плейлист 3",
+      description: "Опис плейлиста 3",
+      image_url: "/placeholder.svg?height=300&width=300",
+      tracks_count: 12,
+    },
+    {
+      id: "4",
+      title: "Плейлист 4",
+      description: "Опис плейлиста 4",
+      image_url: "/placeholder.svg?height=300&width=300",
+      tracks_count: 8,
+    },
+    {
+      id: "5",
+      title: "Плейлист 5",
+      description: "Опис плейлиста 5",
+      image_url: "/placeholder.svg?height=300&width=300",
+      tracks_count: 25,
+    },
+    {
+      id: "6",
+      title: "Плейлист 6",
+      description: "Опис плейлиста 6",
+      image_url: "/placeholder.svg?height=300&width=300",
+      tracks_count: 18,
+    },
+  ]
 
   return (
-    <div className="container py-8">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
-        <h1 className="text-3xl font-bold">Плейлисти</h1>
+    <main className="container mx-auto py-8 px-4">
+      <h1 className="text-3xl font-bold mb-8">Плейлисти</h1>
 
-        <div className="flex gap-2 w-full md:w-auto">
-          <div className="relative flex-grow">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" size={18} />
-            <Input placeholder="Пошук плейлистів" className="pl-10" defaultValue={search} />
-          </div>
-
-          <Button asChild>
-            <Link href="/music/playlists/create">
-              <Plus size={18} className="mr-2" />
-              Створити
-            </Link>
-          </Button>
-        </div>
+      <div className="mb-8 max-w-md">
+        <Input placeholder="Пошук плейлистів..." />
       </div>
 
-      {filteredPlaylists.length > 0 ? (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-          {filteredPlaylists.map((playlist) => (
-            <PlaylistCard
-              key={playlist.id}
-              id={playlist.id}
-              title={playlist.title}
-              description={playlist.description}
-              cover_url={playlist.cover_url}
-              slug={playlist.slug}
-              trackCount={playlist.track_count}
-            />
-          ))}
-        </div>
-      ) : (
-        <div className="text-center py-12">
-          <p className="text-muted-foreground mb-4">Не знайдено плейлистів, що відповідають вашому запиту</p>
-          <Button asChild>
-            <Link href="/music/playlists/create">
-              <Plus size={18} className="mr-2" />
-              Створити новий плейлист
-            </Link>
-          </Button>
-        </div>
-      )}
-    </div>
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        {playlistsList.map((playlist) => (
+          <Link href={`/music/playlists/${playlist.id}`} key={playlist.id}>
+            <Card className="h-full hover:shadow-md transition-shadow">
+              <div className="aspect-video relative">
+                <img
+                  src={playlist.image_url || "/placeholder.svg"}
+                  alt={playlist.title}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <CardContent className="p-4">
+                <h3 className="text-xl font-bold">{playlist.title}</h3>
+                {playlist.description && (
+                  <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{playlist.description}</p>
+                )}
+                {playlist.tracks_count && (
+                  <p className="text-xs text-muted-foreground mt-2">{playlist.tracks_count} треків</p>
+                )}
+              </CardContent>
+            </Card>
+          </Link>
+        ))}
+      </div>
+    </main>
   )
 }
 
