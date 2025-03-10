@@ -4,7 +4,8 @@ import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Play, Pause, Volume2, VolumeX } from "lucide-react"
 
-export default function RadioPreview() {
+// Змінюємо експорт, щоб він був і default, і named
+export function RadioPreview() {
   const [isPlaying, setIsPlaying] = useState(false)
   const [isMuted, setIsMuted] = useState(false)
   const [radioInfo, setRadioInfo] = useState<any>(null)
@@ -78,4 +79,7 @@ export default function RadioPreview() {
     </div>
   )
 }
+
+// Додаємо default export
+export default RadioPreview
 
