@@ -57,6 +57,18 @@ export function RadioPlayer({ stations }: RadioPlayerProps) {
     setIsMuted(!isMuted)
   }
 
+  const handleShare = () => {
+    if (navigator.share) {
+      navigator
+        .share({
+          title: "CHERIE FM",
+          text: `Now playing: ${currentTrack.artist} - ${currentTrack.title}`,
+          url: window.location.href,
+        })
+        .catch(console.error)
+    }
+  }
+
   return (
     <div className="fixed bottom-0 left-0 right-0 z-50 bg-black h-[72px] flex items-center">
       <audio ref={audioRef} src={currentStation?.stream_url} preload="auto" onError={() => setIsPlaying(false)} />
@@ -107,7 +119,7 @@ export function RadioPlayer({ stations }: RadioPlayerProps) {
         </div>
 
         {/* Share button */}
-        <button className="text-white hover:text-gray-300 transition-colors" aria-label="Share">
+        <button onClick={handleShare} className="text-white hover:text-gray-300 transition-colors" aria-label="Share">
           <Share2 size={18} />
         </button>
       </div>
