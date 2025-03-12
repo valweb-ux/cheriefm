@@ -8,15 +8,15 @@ import { Radio, Volume2, Play } from "lucide-react"
 
 interface RadioSettings {
   id?: number
-  stream_url: string
-  station_name: string
-  station_logo_url: string
-  autoplay: boolean
-  show_player: boolean
+  show_controls: boolean
   show_volume_slider: boolean
-  show_album_art: boolean
-  show_station_logo: boolean
+  show_stations_list: boolean
+  show_cover_art: boolean
   default_volume: number
+  autoplay: boolean
+  default_station: string
+  fallback_cover_image: string
+  show_player_on_site: boolean
 }
 
 export default function RadioPlayerSettingsPage() {
@@ -26,42 +26,20 @@ export default function RadioPlayerSettingsPage() {
 
   // Налаштування радіоплеєра
   const [settings, setSettings] = useState<RadioSettings>({
-    stream_url: "",
-    station_name: "CherieFM",
-    station_logo_url: "/placeholder.svg",
-    autoplay: false,
-    show_player: true,
+    show_controls: true,
     show_volume_slider: true,
-    show_album_art: true,
-    show_station_logo: true,
+    show_stations_list: true,
+    show_cover_art: true,
     default_volume: 80,
+    autoplay: false,
+    default_station: "",
+    fallback_cover_image: "/placeholder.svg",
+    show_player_on_site: true,
   })
 
-  // Додаємо імпорт useEffect для ініціалізації таблиці
   useEffect(() => {
-    // Ініціалізуємо таблицю radio_settings при завантаженні сторінки
-    const initRadioTable = async () => {
-      try {
-        const response = await fetch("/api/setup-radio-table")
-        if (!response.ok) {
-          const errorData = await response.json()
-          console.error("Помилка при ініціалізації таблиці radio_settings:", errorData)
-        } else {
-          console.log("Таблиця radio_settings успішно ініціалізована")
-        }
-      } catch (error) {
-        console.error("Помилка при ініціалізації таблиці radio_settings:", error)
-      }
-    }
-
-    initRadioTable()
     fetchSettings()
   }, [])
-
-  // Видаляємо дублюючий useEffect
-  // useEffect(() => {
-  //   fetchSettings()
-  // }, [])
 
   const fetchSettings = async () => {
     try {
@@ -88,36 +66,10 @@ export default function RadioPlayerSettingsPage() {
     }
   }
 
-  // Оновлюємо функцію saveSettings для кращої обробки помилок
   const saveSettings = async () => {
     try {
       setIsSaving(true)
 
-      // Перевіряємо, чи існує таблиця radio_settings
-      const { count, error: checkError } = await supabase
-        .from("radio_settings")
-        .select("*", { count: "exact", head: true })
-
-      if (checkError && checkError.code !== "PGRST116") {
-        console.error("Помилка при перевірці таблиці:", checkError)
-        throw new Error(`Помилка при перевірці таблиці: ${checkError.message}`)
-      }
-
-      // Якщо таблиця не існує, спробуємо її створити
-      if (checkError && checkError.code === "PGRST116") {
-        console.log("Таблиця radio_settings не існує, спробуємо створити")
-
-        // Спроба створити таблицю через RPC (якщо у вас є така функція)
-        try {
-          await supabase.rpc("create_radio_settings_table")
-          console.log("Таблиця radio_settings успішно створена")
-        } catch (createError) {
-          console.error("Не вдалося створити таблицю через RPC:", createError)
-          // Продовжуємо, можливо таблиця вже існує або буде створена автоматично
-        }
-      }
-
-      // Спробуємо зберегти налаштування
       const { data, error } = await supabase.from("radio_settings").upsert([settings], { onConflict: "id" }).select()
 
       if (error) {
@@ -160,38 +112,77 @@ export default function RadioPlayerSettingsPage() {
             </div>
             <div className="dashboard-widget-content">
               <div style={{ marginBottom: "15px" }}>
-                <label className="quick-draft-label">URL потоку радіостанції</label>
-                <input
-                  type="text"
-                  value={settings.stream_url}
-                  onChange={(e) => setSettings({ ...settings, stream_url: e.target.value })}
-                  placeholder="https://example.com/stream"
-                  className="admin-form-input"
-                />
-                <p className="text-sm text-gray-500 mt-1">Введіть URL онлайн-потоку радіостанції (Icecast/Shoutcast)</p>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <div>
+                    <label className="quick-draft-label">Відображати плеєр на сайті</label>
+                    <p className="text-sm text-gray-500">Показувати радіоплеєр на сторінці користувача</p>
+                  </div>
+                  <label className="switch">
+                    <input
+                      type="checkbox"
+                      checked={settings.show_player_on_site}
+                      onChange={(e) => setSettings({ ...settings, show_player_on_site: e.target.checked })}
+                    />
+                    <span className="slider round"></span>
+                  </label>
+                </div>
               </div>
 
               <div style={{ marginBottom: "15px" }}>
-                <label className="quick-draft-label">Назва радіостанції</label>
-                <input
-                  type="text"
-                  value={settings.station_name}
-                  onChange={(e) => setSettings({ ...settings, station_name: e.target.value })}
-                  placeholder="CherieFM"
-                  className="admin-form-input"
-                />
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <div>
+                    <label className="quick-draft-label">Показувати елементи керування</label>
+                    <p className="text-sm text-gray-500">Кнопки відтворення, паузи тощо</p>
+                  </div>
+                  <label className="switch">
+                    <input
+                      type="checkbox"
+                      checked={settings.show_controls}
+                      onChange={(e) => setSettings({ ...settings, show_controls: e.target.checked })}
+                    />
+                    <span className="slider round"></span>
+                  </label>
+                </div>
               </div>
 
               <div style={{ marginBottom: "15px" }}>
-                <label className="quick-draft-label">URL логотипу радіостанції</label>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <div>
+                    <label className="quick-draft-label">Показувати список станцій</label>
+                    <p className="text-sm text-gray-500">Можливість вибору радіостанції</p>
+                  </div>
+                  <label className="switch">
+                    <input
+                      type="checkbox"
+                      checked={settings.show_stations_list}
+                      onChange={(e) => setSettings({ ...settings, show_stations_list: e.target.checked })}
+                    />
+                    <span className="slider round"></span>
+                  </label>
+                </div>
+              </div>
+
+              <div style={{ marginBottom: "15px" }}>
+                <label className="quick-draft-label">URL зображення за замовчуванням</label>
                 <input
                   type="text"
-                  value={settings.station_logo_url}
-                  onChange={(e) => setSettings({ ...settings, station_logo_url: e.target.value })}
+                  value={settings.fallback_cover_image}
+                  onChange={(e) => setSettings({ ...settings, fallback_cover_image: e.target.value })}
                   placeholder="/placeholder.svg"
                   className="admin-form-input"
                 />
-                <p className="text-sm text-gray-500 mt-1">Рекомендований розмір: 300x300 пікселів</p>
+                <p className="text-sm text-gray-500 mt-1">Використовується, якщо обкладинка пісні недоступна</p>
+              </div>
+
+              <div style={{ marginBottom: "15px" }}>
+                <label className="quick-draft-label">Станція за замовчуванням</label>
+                <input
+                  type="text"
+                  value={settings.default_station}
+                  onChange={(e) => setSettings({ ...settings, default_station: e.target.value })}
+                  placeholder="ID станції за замовчуванням"
+                  className="admin-form-input"
+                />
               </div>
             </div>
           </div>
@@ -201,23 +192,6 @@ export default function RadioPlayerSettingsPage() {
               <h2 className="dashboard-widget-title">Налаштування відображення</h2>
             </div>
             <div className="dashboard-widget-content">
-              <div style={{ marginBottom: "15px" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <div>
-                    <label className="quick-draft-label">Відображати плеєр</label>
-                    <p className="text-sm text-gray-500">Показувати радіоплеєр на сторінці користувача</p>
-                  </div>
-                  <label className="switch">
-                    <input
-                      type="checkbox"
-                      checked={settings.show_player}
-                      onChange={(e) => setSettings({ ...settings, show_player: e.target.checked })}
-                    />
-                    <span className="slider round"></span>
-                  </label>
-                </div>
-              </div>
-
               <div style={{ marginBottom: "15px" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                   <div>
@@ -255,31 +229,14 @@ export default function RadioPlayerSettingsPage() {
               <div style={{ marginBottom: "15px" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                   <div>
-                    <label className="quick-draft-label">Показувати обкладинку пісні</label>
+                    <label className="quick-draft-label">Показувати обкладинку</label>
                     <p className="text-sm text-gray-500">Зображення поточної пісні, якщо доступно</p>
                   </div>
                   <label className="switch">
                     <input
                       type="checkbox"
-                      checked={settings.show_album_art}
-                      onChange={(e) => setSettings({ ...settings, show_album_art: e.target.checked })}
-                    />
-                    <span className="slider round"></span>
-                  </label>
-                </div>
-              </div>
-
-              <div style={{ marginBottom: "15px" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <div>
-                    <label className="quick-draft-label">Показувати логотип радіостанції</label>
-                    <p className="text-sm text-gray-500">Якщо обкладинка пісні недоступна</p>
-                  </div>
-                  <label className="switch">
-                    <input
-                      type="checkbox"
-                      checked={settings.show_station_logo}
-                      onChange={(e) => setSettings({ ...settings, show_station_logo: e.target.checked })}
+                      checked={settings.show_cover_art}
+                      onChange={(e) => setSettings({ ...settings, show_cover_art: e.target.checked })}
                     />
                     <span className="slider round"></span>
                   </label>
@@ -328,13 +285,15 @@ export default function RadioPlayerSettingsPage() {
                     <Radio size={20} className="text-white" />
                   </div>
                   <div className="flex-1">
-                    <div className="text-sm font-medium">{settings.station_name}</div>
+                    <div className="text-sm font-medium">CherieFM</div>
                     <div className="text-xs text-gray-400">Зараз в ефірі</div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <button className="w-8 h-8 rounded-full bg-white text-black flex items-center justify-center">
-                      <Play size={16} className="ml-0.5" />
-                    </button>
+                    {settings.show_controls && (
+                      <button className="w-8 h-8 rounded-full bg-white text-black flex items-center justify-center">
+                        <Play size={16} className="ml-0.5" />
+                      </button>
+                    )}
                     {settings.show_volume_slider && (
                       <div className="flex items-center gap-1">
                         <Volume2 size={16} />
