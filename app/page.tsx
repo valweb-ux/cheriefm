@@ -21,8 +21,19 @@ export default async function Home({ searchParams }: { searchParams: { page?: st
     console.log(`Новина ${index + 1}:`, item.title, "URL зображення:", item.image_url)
   })
 
+  // Отримуємо список радіостанцій
+  // const { data: stations } = await supabase.from("radio_stations").select("*").order("name")
+
   return (
     <div>
+      {/* Радіоплеєр у верхній частині сторінки */}
+      {/* <div className="bg-primary/5 p-6 rounded-lg mb-8">
+        <h2 className="text-2xl font-bold mb-4">Слухайте наше радіо онлайн</h2>
+        <div className="max-w-xl mx-auto">
+          <RadioPlayer stations={(stations as RadioStation[]) || []} />
+        </div>
+      </div> */}
+
       <h1 className="page-title">Останні новини</h1>
       <p className="news-count">Всього новин: {total}</p>
 
