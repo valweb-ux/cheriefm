@@ -25,10 +25,10 @@ export default async function RootLayout({
               © {new Date().getFullYear()} CherieFM. Всі права захищені.
             </div>
           </footer>
-
-          {/* Закріплений радіоплеєр внизу сторінки */}
-          <RadioPlayer stations={(stations as RadioStation[]) || []} />
         </div>
+
+        {/* Радіоплеєр, зафіксований внизу екрану */}
+        <RadioPlayer stations={(stations as RadioStation[]) || []} />
       </body>
     </html>
   )
