@@ -19,8 +19,8 @@ export default async function RootLayout({
       <body>
         <div className="min-h-screen bg-background flex flex-col">
           <NavMenu />
-          <main className="flex-grow container mx-auto px-4 py-8 pb-24">{children}</main>
-          <footer className="bg-primary text-primary-foreground py-4">
+          <main className="flex-grow container mx-auto px-4 py-8 pb-32">{children}</main>
+          <footer className="bg-primary text-primary-foreground py-4 mb-20">
             <div className="container mx-auto text-center">
               © {new Date().getFullYear()} CherieFM. Всі права захищені.
             </div>
