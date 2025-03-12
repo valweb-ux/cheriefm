@@ -5,11 +5,6 @@ import type React from "react"
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { AdminPageHeader } from "@/components/admin/ui/AdminPageHeader"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Checkbox } from "@/components/ui/checkbox"
 import { PlusCircle, Search, MessageSquare, ChevronUp, ChevronDown } from "lucide-react"
 import { format } from "date-fns"
 import { uk } from "date-fns/locale"
@@ -96,205 +91,207 @@ export default function NewsListPage() {
 
   return (
     <div>
-      <AdminPageHeader
-        title="Всі новини"
-        breadcrumbs={[{ label: "Адмінпанель", href: "/admin" }, { label: "Новини" }]}
-        actions={
-          <Button asChild>
-            <Link href="/admin/edit/new">
-              <PlusCircle className="mr-2 h-4 w-4" />
-              Додати новину
-            </Link>
-          </Button>
-        }
-      />
+      <h1 className="admin-page-title">Всі новини</h1>
 
-      <div className="bg-white border rounded-md shadow-sm">
-        <div className="p-4 border-b">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2">
-              <Select defaultValue="bulk">
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Масові дії" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="bulk">Масові дії</SelectItem>
-                  <SelectItem value="delete">Видалити</SelectItem>
-                </SelectContent>
-              </Select>
-              <Button variant="outline" size="sm">
-                Застосувати
-              </Button>
+      <div className="admin-notice admin-notice-info">
+        <p>
+          Тут ви можете переглядати, редагувати та видаляти новини. Використовуйте фільтри для пошуку конкретних новин.
+        </p>
+      </div>
+
+      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "20px" }}>
+        <div>
+          <Link href="/admin/edit/new" className="admin-button admin-button-primary">
+            <PlusCircle className="mr-2 h-4 w-4" style={{ display: "inline" }} />
+            Додати новину
+          </Link>
+        </div>
+        <div>
+          <form onSubmit={handleSearch} style={{ display: "flex", gap: "10px" }}>
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Пошук новин"
+              className="admin-form-input"
+              style={{ width: "300px" }}
+            />
+            <button type="submit" className="admin-button admin-button-secondary">
+              <Search className="mr-2 h-4 w-4" style={{ display: "inline" }} />
+              Пошук
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <div className="dashboard-widget">
+        <div className="dashboard-widget-header">
+          <h2 className="dashboard-widget-title">Список новин</h2>
+        </div>
+        <div className="dashboard-widget-content">
+          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "15px" }}>
+            <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+              <select
+                className="admin-form-select"
+                style={{ width: "180px" }}
+                onChange={(e) => handleBulkAction(e.target.value)}
+              >
+                <option value="bulk">Масові дії</option>
+                <option value="delete">Видалити</option>
+              </select>
+              <button className="admin-button admin-button-secondary">Застосувати</button>
             </div>
 
-            <div className="flex items-center gap-2">
-              <form onSubmit={handleSearch} className="flex gap-2">
-                <Input
-                  placeholder="Пошук новин"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-[300px]"
-                />
-                <Button type="submit" variant="outline" size="icon">
-                  <Search className="h-4 w-4" />
-                </Button>
-              </form>
+            <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+              <select
+                className="admin-form-select"
+                style={{ width: "150px" }}
+                value={dateFilter}
+                onChange={(e) => setDateFilter(e.target.value)}
+              >
+                <option value="all">Всі дати</option>
+                <option value="today">Сьогодні</option>
+                <option value="yesterday">Вчора</option>
+                <option value="week">За тиждень</option>
+                <option value="month">За місяць</option>
+              </select>
 
-              <Select value={dateFilter} onValueChange={setDateFilter}>
-                <SelectTrigger className="w-[150px]">
-                  <SelectValue placeholder="Всі дати" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Всі дати</SelectItem>
-                  <SelectItem value="today">Сьогодні</SelectItem>
-                  <SelectItem value="yesterday">Вчора</SelectItem>
-                  <SelectItem value="week">За тиждень</SelectItem>
-                  <SelectItem value="month">За місяць</SelectItem>
-                </SelectContent>
-              </Select>
-
-              <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-                <SelectTrigger className="w-[150px]">
-                  <SelectValue placeholder="Всі категорії" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Всі категорії</SelectItem>
-                  <SelectItem value="news">Новини</SelectItem>
-                  <SelectItem value="events">Події</SelectItem>
-                </SelectContent>
-              </Select>
+              <select
+                className="admin-form-select"
+                style={{ width: "150px" }}
+                value={categoryFilter}
+                onChange={(e) => setCategoryFilter(e.target.value)}
+              >
+                <option value="all">Всі категорії</option>
+                <option value="news">Новини</option>
+                <option value="events">Події</option>
+              </select>
             </div>
           </div>
 
-          <div className="text-sm text-gray-500">
+          <div className="text-sm text-gray-500 mb-3">
             {isLoading ? "Завантаження..." : `Показано ${news.length} з ${totalNews} новин`}
           </div>
-        </div>
 
-        <div className="overflow-x-auto">
-          <table className="w-full border-collapse">
-            <thead>
-              <tr className="bg-gray-50 border-b">
-                <th className="p-3 text-left">
-                  <Checkbox
-                    checked={selectedItems.length === news.length}
-                    onCheckedChange={(checked: boolean) => handleSelectAll(checked)}
-                  />
-                </th>
-                <th className="p-3 text-left cursor-pointer" onClick={() => handleSort("title")}>
-                  <div className="flex items-center gap-1">
-                    Заголовок
-                    <SortIcon field="title" />
-                  </div>
-                </th>
-                <th className="p-3 text-left">Автор</th>
-                <th className="p-3 text-left">Категорії</th>
-                <th className="p-3 text-left">Теги</th>
-                <th className="p-3 text-left w-[100px]">Коментарі</th>
-                <th className="p-3 text-left cursor-pointer" onClick={() => handleSort("date")}>
-                  <div className="flex items-center gap-1">
-                    Дата
-                    <SortIcon field="date" />
-                  </div>
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {news.map((item) => (
-                <tr key={item.id} className="border-b hover:bg-gray-50">
-                  <td className="p-3">
-                    <Checkbox
-                      checked={selectedItems.includes(item.id)}
-                      onCheckedChange={(checked: boolean) => handleSelectItem(item.id, checked)}
+          <div className="overflow-x-auto">
+            <table className="admin-table">
+              <thead>
+                <tr>
+                  <th style={{ width: "30px" }}>
+                    <input
+                      type="checkbox"
+                      checked={selectedItems.length === news.length && news.length > 0}
+                      onChange={(e) => handleSelectAll(e.target.checked)}
                     />
-                  </td>
-                  <td className="p-3">
-                    <div>
-                      <Link href={`/admin/edit/${item.id}`} className="font-medium text-blue-600 hover:underline">
-                        {item.title}
-                      </Link>
-                      <div className="text-sm text-gray-500 mt-1">
-                        <Link href={`/admin/edit/${item.id}`} className="text-blue-600 hover:underline">
-                          Редагувати
-                        </Link>
-                        {" | "}
-                        <button
-                          onClick={() => {
-                            if (confirm("Ви впевнені, що хочете видалити цю новину?")) {
-                              // Implement delete
-                            }
-                          }}
-                          className="text-red-600 hover:underline"
-                        >
-                          Видалити
-                        </button>
-                        {" | "}
-                        <Link href={`/news/${item.id}`} className="text-blue-600 hover:underline">
-                          Переглянути
-                        </Link>
-                      </div>
+                  </th>
+                  <th style={{ cursor: "pointer" }} onClick={() => handleSort("title")}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "5px" }}>
+                      Заголовок
+                      <SortIcon field="title" />
                     </div>
-                  </td>
-                  <td className="p-3">Адмін</td>
-                  <td className="p-3">Новини</td>
-                  <td className="p-3">—</td>
-                  <td className="p-3">
-                    <div className="flex items-center gap-1">
-                      <MessageSquare className="h-4 w-4 text-gray-400" />
-                      <span>0</span>
+                  </th>
+                  <th>Автор</th>
+                  <th>Категорії</th>
+                  <th>Теги</th>
+                  <th style={{ width: "100px" }}>Коментарі</th>
+                  <th style={{ cursor: "pointer", width: "150px" }} onClick={() => handleSort("date")}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "5px" }}>
+                      Дата
+                      <SortIcon field="date" />
                     </div>
-                  </td>
-                  <td className="p-3">
-                    <div className="whitespace-nowrap">
-                      {format(new Date(item.publish_date || item.created_at), "d MMMM yyyy", { locale: uk })}
-                    </div>
-                    <div className="text-sm text-gray-500">
-                      {format(new Date(item.publish_date || item.created_at), "HH:mm")}
-                    </div>
-                  </td>
+                  </th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {news.map((item) => (
+                  <tr key={item.id}>
+                    <td>
+                      <input
+                        type="checkbox"
+                        checked={selectedItems.includes(item.id)}
+                        onChange={(e) => handleSelectItem(item.id, e.target.checked)}
+                      />
+                    </td>
+                    <td>
+                      <div>
+                        <Link href={`/admin/edit/${item.id}`} className="admin-link">
+                          {item.title}
+                        </Link>
+                        <div style={{ fontSize: "12px", marginTop: "5px" }}>
+                          <Link href={`/admin/edit/${item.id}`} className="admin-link">
+                            Редагувати
+                          </Link>
+                          {" | "}
+                          <button
+                            onClick={() => {
+                              if (confirm("Ви впевнені, що хочете видалити цю новину?")) {
+                                // Implement delete
+                              }
+                            }}
+                            className="admin-link"
+                            style={{ color: "#d63638" }}
+                          >
+                            Видалити
+                          </button>
+                          {" | "}
+                          <Link href={`/news/${item.id}`} className="admin-link">
+                            Переглянути
+                          </Link>
+                        </div>
+                      </div>
+                    </td>
+                    <td>Адмін</td>
+                    <td>Новини</td>
+                    <td>—</td>
+                    <td>
+                      <div style={{ display: "flex", alignItems: "center", gap: "5px" }}>
+                        <MessageSquare className="h-4 w-4" style={{ color: "#8c8f94" }} />
+                        <span>0</span>
+                      </div>
+                    </td>
+                    <td>
+                      <div>{format(new Date(item.publish_date || item.created_at), "d MMMM yyyy", { locale: uk })}</div>
+                      <div style={{ fontSize: "12px", color: "#8c8f94" }}>
+                        {format(new Date(item.publish_date || item.created_at), "HH:mm")}
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
 
-        <div className="p-4 border-t">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Select defaultValue="bulk">
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Масові дії" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="bulk">Масові дії</SelectItem>
-                  <SelectItem value="delete">Видалити</SelectItem>
-                </SelectContent>
-              </Select>
-              <Button variant="outline" size="sm">
-                Застосувати
-              </Button>
+          <div style={{ display: "flex", justifyContent: "space-between", marginTop: "15px" }}>
+            <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+              <select
+                className="admin-form-select"
+                style={{ width: "180px" }}
+                onChange={(e) => handleBulkAction(e.target.value)}
+              >
+                <option value="bulk">Масові дії</option>
+                <option value="delete">Видалити</option>
+              </select>
+              <button className="admin-button admin-button-secondary">Застосувати</button>
             </div>
 
-            <div className="flex items-center gap-2">
-              <Button
-                variant="outline"
-                size="sm"
+            <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+              <button
+                className="admin-button admin-button-secondary"
                 disabled={currentPage === 1}
                 onClick={() => setCurrentPage(currentPage - 1)}
               >
                 Попередня
-              </Button>
-              <span className="text-sm text-gray-500">
+              </button>
+              <span style={{ color: "#646970" }}>
                 Сторінка {currentPage} з {Math.ceil(totalNews / pageSize)}
               </span>
-              <Button
-                variant="outline"
-                size="sm"
+              <button
+                className="admin-button admin-button-secondary"
                 disabled={currentPage >= Math.ceil(totalNews / pageSize)}
                 onClick={() => setCurrentPage(currentPage + 1)}
               >
                 Наступна
-              </Button>
+              </button>
             </div>
           </div>
         </div>
