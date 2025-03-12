@@ -69,7 +69,6 @@ export default function RadioPlayerSettingsPage() {
       toast({
         title: "Помилка",
         description: "Не вдалося завантажити налаштування радіоплеєра",
-        variant: "destructive",
       })
     } finally {
       setIsLoading(false)
@@ -95,7 +94,6 @@ export default function RadioPlayerSettingsPage() {
       toast({
         title: "Помилка",
         description: "Не вдалося зберегти налаштування радіоплеєра",
-        variant: "destructive",
       })
     } finally {
       setIsSaving(false)
