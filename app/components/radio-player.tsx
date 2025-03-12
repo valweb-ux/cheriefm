@@ -17,6 +17,21 @@ export function RadioPlayer({ stations }: RadioPlayerProps) {
   const [isMuted, setIsMuted] = useState(false)
   const [isExpanded, setIsExpanded] = useState(false)
   const audioRef = useRef<HTMLAudioElement | null>(null)
+  const [isMobile, setIsMobile] = useState(false)
+
+  // Check if we're on mobile
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768)
+    }
+
+    checkMobile()
+    window.addEventListener("resize", checkMobile)
+
+    return () => {
+      window.removeEventListener("resize", checkMobile)
+    }
+  }, [])
 
   useEffect(() => {
     if (stations.length > 0 && !currentStation) {
@@ -69,64 +84,65 @@ export function RadioPlayer({ stations }: RadioPlayerProps) {
   }
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50">
+    <div className="fixed bottom-0 left-0 right-0 z-50 border-t border-gray-200 shadow-lg bg-white">
       {/* Кнопка розгортання/згортання */}
       <div className="flex justify-center">
         <button
           onClick={toggleExpanded}
           className="bg-primary text-primary-foreground rounded-t-md px-4 py-1 -mt-6 shadow-lg"
+          aria-label={isExpanded ? "Згорнути плеєр" : "Розгорнути плеєр"}
         >
           {isExpanded ? <ChevronDown size={16} /> : <ChevronUp size={16} />}
         </button>
       </div>
 
       {/* Основний блок плеєра */}
-      <div className="bg-card border-t border-gray-200 shadow-lg">
+      <div className="container mx-auto">
         <audio ref={audioRef} src={currentStation?.stream_url} preload="auto" onError={() => setIsPlaying(false)} />
 
-        <div className="container mx-auto">
-          {currentStation && (
-            <div className="p-4">
-              {/* Компактний вигляд плеєра */}
-              <div className="flex items-center">
-                <div className="w-12 h-12 rounded-full overflow-hidden bg-muted flex-shrink-0 mr-4">
-                  {currentStation.logo_url ? (
-                    <img
-                      src={currentStation.logo_url || "/placeholder.svg"}
-                      alt={currentStation.name}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div className="text-2xl font-bold text-muted-foreground w-full h-full flex items-center justify-center">
-                      {currentStation.name.charAt(0)}
-                    </div>
-                  )}
-                </div>
+        {currentStation && (
+          <div className="p-4">
+            {/* Компактний вигляд плеєра */}
+            <div className="flex items-center">
+              <div className="w-12 h-12 rounded-full overflow-hidden bg-muted flex-shrink-0 mr-4">
+                {currentStation.logo_url ? (
+                  <img
+                    src={currentStation.logo_url || "/placeholder.svg"}
+                    alt={currentStation.name}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="text-2xl font-bold text-muted-foreground w-full h-full flex items-center justify-center">
+                    {currentStation.name.charAt(0)}
+                  </div>
+                )}
+              </div>
 
-                <div className="flex-1 min-w-0 mr-4">
-                  <h2 className="text-lg font-bold truncate">{currentStation.name}</h2>
-                  {currentStation.genre && (
-                    <p className="text-sm text-muted-foreground truncate">{currentStation.genre}</p>
-                  )}
-                </div>
+              <div className="flex-1 min-w-0 mr-4">
+                <h2 className="text-lg font-bold truncate">{currentStation.name}</h2>
+                {currentStation.genre && (
+                  <p className="text-sm text-muted-foreground truncate">{currentStation.genre}</p>
+                )}
+              </div>
 
-                <div className="flex items-center space-x-4">
-                  <button
-                    onClick={handlePlay}
-                    className="w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center hover:bg-primary/90 transition-colors"
-                    aria-label={isPlaying ? "Pause" : "Play"}
-                  >
-                    {isPlaying ? <Pause size={20} /> : <Play size={20} />}
-                  </button>
+              <div className="flex items-center space-x-4">
+                <button
+                  onClick={handlePlay}
+                  className="w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center hover:bg-primary/90 transition-colors"
+                  aria-label={isPlaying ? "Pause" : "Play"}
+                >
+                  {isPlaying ? <Pause size={20} /> : <Play size={20} />}
+                </button>
 
-                  <button
-                    onClick={toggleMute}
-                    className="w-8 h-8 rounded-full bg-secondary text-secondary-foreground flex items-center justify-center hover:bg-secondary/90 transition-colors"
-                    aria-label={isMuted ? "Unmute" : "Mute"}
-                  >
-                    {isMuted ? <VolumeX size={16} /> : <Volume2 size={16} />}
-                  </button>
+                <button
+                  onClick={toggleMute}
+                  className="w-8 h-8 rounded-full bg-secondary text-secondary-foreground flex items-center justify-center hover:bg-secondary/90 transition-colors"
+                  aria-label={isMuted ? "Unmute" : "Mute"}
+                >
+                  {isMuted ? <VolumeX size={16} /> : <Volume2 size={16} />}
+                </button>
 
+                {!isMobile && (
                   <div className="w-24 hidden sm:block">
                     <input
                       type="range"
@@ -139,56 +155,54 @@ export function RadioPlayer({ stations }: RadioPlayerProps) {
                       aria-label="Volume"
                     />
                   </div>
-                </div>
+                )}
               </div>
+            </div>
 
-              {/* Розгорнутий вигляд з вибором станцій */}
-              {isExpanded && (
-                <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2">
-                  {stations.map((station) => (
-                    <button
-                      key={station.id}
-                      onClick={() => handleStationChange(station)}
-                      className={`text-left px-3 py-2 rounded-md transition-colors ${
-                        currentStation?.id === station.id ? "bg-primary/10 text-primary" : "hover:bg-muted"
-                      }`}
-                    >
-                      <div className="flex items-center">
-                        <div className="w-8 h-8 rounded-full overflow-hidden bg-muted flex-shrink-0 mr-2">
-                          {station.logo_url ? (
-                            <img
-                              src={station.logo_url || "/placeholder.svg"}
-                              alt={station.name}
-                              className="w-full h-full object-cover"
-                            />
-                          ) : (
-                            <div className="text-sm font-bold text-muted-foreground w-full h-full flex items-center justify-center">
-                              {station.name.charAt(0)}
-                            </div>
-                          )}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="font-medium truncate">{station.name}</div>
-                          {station.genre && (
-                            <div className="text-xs text-muted-foreground truncate">{station.genre}</div>
-                          )}
-                        </div>
+            {/* Розгорнутий вигляд з вибором станцій */}
+            {isExpanded && (
+              <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2">
+                {stations.map((station) => (
+                  <button
+                    key={station.id}
+                    onClick={() => handleStationChange(station)}
+                    className={`text-left px-3 py-2 rounded-md transition-colors ${
+                      currentStation?.id === station.id ? "bg-primary/10 text-primary" : "hover:bg-muted"
+                    }`}
+                  >
+                    <div className="flex items-center">
+                      <div className="w-8 h-8 rounded-full overflow-hidden bg-muted flex-shrink-0 mr-2">
+                        {station.logo_url ? (
+                          <img
+                            src={station.logo_url || "/placeholder.svg"}
+                            alt={station.name}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="text-sm font-bold text-muted-foreground w-full h-full flex items-center justify-center">
+                            {station.name.charAt(0)}
+                          </div>
+                        )}
                       </div>
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
+                      <div className="flex-1 min-w-0">
+                        <div className="font-medium truncate">{station.name}</div>
+                        {station.genre && <div className="text-xs text-muted-foreground truncate">{station.genre}</div>}
+                      </div>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
 
-          {/* Якщо немає станцій */}
-          {!currentStation && (
-            <div className="p-4 flex items-center justify-center">
-              <Radio className="text-muted-foreground mr-2" size={20} />
-              <p className="text-muted-foreground">Немає доступних радіостанцій</p>
-            </div>
-          )}
-        </div>
+        {/* Якщо немає станцій */}
+        {!currentStation && (
+          <div className="p-4 flex items-center justify-center">
+            <Radio className="text-muted-foreground mr-2" size={20} />
+            <p className="text-muted-foreground">Немає доступних радіостанцій</p>
+          </div>
+        )}
       </div>
     </div>
   )
