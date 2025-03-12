@@ -57,84 +57,59 @@ export function RadioPlayer({ stations }: RadioPlayerProps) {
     setIsMuted(!isMuted)
   }
 
-  const handleShare = () => {
-    if (navigator.share) {
-      navigator
-        .share({
-          title: "CHERIE FM",
-          text: `Now playing: ${currentTrack.artist} - ${currentTrack.title}`,
-          url: window.location.href,
-        })
-        .catch(console.error)
-    }
-  }
-
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50 bg-gradient-to-r from-[#1a1a1a] to-[#2d2d2d] text-white h-24 shadow-lg">
+    <div className="fixed bottom-0 left-0 right-0 z-50 bg-black h-[72px] flex items-center">
       <audio ref={audioRef} src={currentStation?.stream_url} preload="auto" onError={() => setIsPlaying(false)} />
 
-      <div className="flex items-center h-full px-6 max-w-7xl mx-auto">
-        {/* Left section - Track info */}
-        <div className="flex items-center flex-1 min-w-0">
-          <div className="w-20 h-20 mr-6 bg-gray-800 rounded-lg overflow-hidden flex-shrink-0">
-            <img src="/placeholder.svg?height=80&width=80" alt="Track artwork" className="w-full h-full object-cover" />
-          </div>
-          <div className="min-w-0">
-            <div className="text-sm text-gray-400 mb-1">En ce moment sur CHERIE FM</div>
-            <div className="font-bold text-lg truncate">{currentTrack.artist}</div>
-            <div className="text-sm text-gray-200 truncate">{currentTrack.title}</div>
-          </div>
-        </div>
-
-        {/* Center section - Play button */}
-        <div className="flex-shrink-0 mx-8">
-          <button
-            onClick={handlePlay}
-            className="w-14 h-14 rounded-full bg-pink-600 hover:bg-pink-700 text-white flex items-center justify-center transition-colors"
-            aria-label={isPlaying ? "Pause" : "Play"}
-          >
-            {isPlaying ? <Pause size={28} /> : <Play size={28} className="ml-1" />}
-          </button>
-        </div>
-
-        {/* Right section - Volume and share */}
-        <div className="flex items-center gap-6">
-          <div className="flex items-center gap-2">
-            <button
-              onClick={toggleMute}
-              className="text-gray-400 hover:text-white transition-colors p-2"
-              aria-label={isMuted ? "Unmute" : "Mute"}
-            >
-              {isMuted ? <VolumeX size={20} /> : <Volume2 size={20} />}
-            </button>
-
-            <div className="w-24">
-              <input
-                type="range"
-                min="0"
-                max="1"
-                step="0.01"
-                value={volume}
-                onChange={handleVolumeChange}
-                className="w-full accent-pink-600"
-                aria-label="Volume"
-              />
-            </div>
-          </div>
-
-          <button
-            onClick={handleShare}
-            className="text-gray-400 hover:text-white transition-colors p-2"
-            aria-label="Share"
-          >
-            <Share2 size={20} />
-          </button>
-        </div>
+      {/* Album art */}
+      <div className="h-full aspect-square bg-gray-800 mr-4">
+        <img src="/placeholder.svg?height=72&width=72" alt="Track artwork" className="w-full h-full object-cover" />
       </div>
 
-      {/* Progress bar */}
-      <div className="absolute bottom-0 left-0 right-0 h-1 bg-gray-800">
-        <div className="h-full bg-pink-600" style={{ width: "30%" }} />
+      {/* Track info */}
+      <div className="flex-1">
+        <div className="text-xs text-gray-400">En ce moment sur CHERIE FM</div>
+        <div className="text-white font-medium">{currentTrack.artist}</div>
+        <div className="text-white text-sm">{currentTrack.title}</div>
+      </div>
+
+      {/* Controls */}
+      <div className="flex items-center gap-6 px-6">
+        {/* Play button */}
+        <button
+          onClick={handlePlay}
+          className="w-10 h-10 rounded-full bg-white text-black flex items-center justify-center hover:bg-gray-200 transition-colors"
+          aria-label={isPlaying ? "Pause" : "Play"}
+        >
+          {isPlaying ? <Pause size={20} /> : <Play size={20} className="ml-0.5" />}
+        </button>
+
+        {/* Volume */}
+        <div className="flex items-center gap-2">
+          <button
+            onClick={toggleMute}
+            className="text-white hover:text-gray-300 transition-colors"
+            aria-label={isMuted ? "Unmute" : "Mute"}
+          >
+            {isMuted ? <VolumeX size={18} /> : <Volume2 size={18} />}
+          </button>
+
+          <input
+            type="range"
+            min="0"
+            max="1"
+            step="0.01"
+            value={volume}
+            onChange={handleVolumeChange}
+            className="w-24 accent-white"
+            aria-label="Volume"
+          />
+        </div>
+
+        {/* Share button */}
+        <button className="text-white hover:text-gray-300 transition-colors" aria-label="Share">
+          <Share2 size={18} />
+        </button>
       </div>
     </div>
   )
