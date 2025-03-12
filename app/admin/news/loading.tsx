@@ -1,10 +1,9 @@
-import { Loading } from "@/components/ui/loading"
+import { Loader2 } from "lucide-react"
 
-export default function NewsLoading() {
+export default function Loading() {
   return (
-    <div className="p-8">
-      <h1 className="text-2xl font-bold mb-6">Всі новини</h1>
-      <Loading />
+    <div className="flex justify-center items-center py-8">
+      <Loader2 className="h-8 w-8 animate-spin text-primary" />
     </div>
   )
 }
