@@ -37,9 +37,31 @@ export default function RadioPlayerSettingsPage() {
     default_volume: 80,
   })
 
+  // Додаємо імпорт useEffect для ініціалізації таблиці
   useEffect(() => {
+    // Ініціалізуємо таблицю radio_settings при завантаженні сторінки
+    const initRadioTable = async () => {
+      try {
+        const response = await fetch("/api/setup-radio-table")
+        if (!response.ok) {
+          const errorData = await response.json()
+          console.error("Помилка при ініціалізації таблиці radio_settings:", errorData)
+        } else {
+          console.log("Таблиця radio_settings успішно ініціалізована")
+        }
+      } catch (error) {
+        console.error("Помилка при ініціалізації таблиці radio_settings:", error)
+      }
+    }
+
+    initRadioTable()
     fetchSettings()
   }, [])
+
+  // Видаляємо дублюючий useEffect
+  // useEffect(() => {
+  //   fetchSettings()
+  // }, [])
 
   const fetchSettings = async () => {
     try {
@@ -66,20 +88,50 @@ export default function RadioPlayerSettingsPage() {
     }
   }
 
+  // Оновлюємо функцію saveSettings для кращої обробки помилок
   const saveSettings = async () => {
     try {
       setIsSaving(true)
 
+      // Перевіряємо, чи існує таблиця radio_settings
+      const { count, error: checkError } = await supabase
+        .from("radio_settings")
+        .select("*", { count: "exact", head: true })
+
+      if (checkError && checkError.code !== "PGRST116") {
+        console.error("Помилка при перевірці таблиці:", checkError)
+        throw new Error(`Помилка при перевірці таблиці: ${checkError.message}`)
+      }
+
+      // Якщо таблиця не існує, спробуємо її створити
+      if (checkError && checkError.code === "PGRST116") {
+        console.log("Таблиця radio_settings не існує, спробуємо створити")
+
+        // Спроба створити таблицю через RPC (якщо у вас є така функція)
+        try {
+          await supabase.rpc("create_radio_settings_table")
+          console.log("Таблиця radio_settings успішно створена")
+        } catch (createError) {
+          console.error("Не вдалося створити таблицю через RPC:", createError)
+          // Продовжуємо, можливо таблиця вже існує або буде створена автоматично
+        }
+      }
+
+      // Спробуємо зберегти налаштування
       const { data, error } = await supabase.from("radio_settings").upsert([settings], { onConflict: "id" }).select()
 
       if (error) {
-        throw error
+        console.error("Помилка при збереженні налаштувань:", error)
+        throw new Error(`Помилка при збереженні: ${error.message}`)
       }
 
+      console.log("Налаштування успішно збережено:", data)
       alert("Налаштування радіоплеєра успішно збережено!")
     } catch (error) {
       console.error("Помилка при збереженні налаштувань радіоплеєра:", error)
-      alert("Не вдалося зберегти налаштування радіоплеєра")
+      alert(
+        `Не вдалося зберегти налаштування радіоплеєра: ${error instanceof Error ? error.message : "Невідома помилка"}`,
+      )
     } finally {
       setIsSaving(false)
     }
