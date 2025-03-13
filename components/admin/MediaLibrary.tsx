@@ -4,7 +4,7 @@ import type React from "react"
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { LayoutGrid, LayoutList, Search, Loader2, Trash2, Copy, Check, Info, Folder, Upload } from "lucide-react"
+import { Search, Loader2, Trash2, Copy, Check, Info, Folder, Upload } from "lucide-react"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Checkbox } from "@/components/ui/checkbox"
 import { format } from "date-fns"
@@ -645,69 +645,57 @@ export function MediaLibrary({
   return (
     <div>
       {/* Toolbar */}
-      <div className="border-b border-gray-200 p-4">
+      <div className="mb-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
-            <div className="flex items-center space-x-2">
-              <Button
-                variant="ghost"
-                size="sm"
-                className={viewMode === "list" ? "bg-gray-100" : ""}
-                onClick={() => setViewMode("list")}
-              >
-                <LayoutList className="h-4 w-4" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                className={viewMode === "grid" ? "bg-gray-100" : ""}
-                onClick={() => setViewMode("grid")}
-              >
-                <LayoutGrid className="h-4 w-4" />
-              </Button>
-            </div>
-
             <Select value="all">
               <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="All media items" />
+                <SelectValue placeholder="Всі медіа-файли" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All media items</SelectItem>
-                <SelectItem value="images">Images</SelectItem>
-                <SelectItem value="videos">Videos</SelectItem>
-                <SelectItem value="documents">Documents</SelectItem>
+                <SelectItem value="all">Всі медіа-файли</SelectItem>
+                <SelectItem value="images">Зображення</SelectItem>
+                <SelectItem value="videos">Відео</SelectItem>
+                <SelectItem value="documents">Документи</SelectItem>
               </SelectContent>
             </Select>
 
             <Select value={dateFilter} onValueChange={setDateFilter}>
               <SelectTrigger className="w-[140px]">
-                <SelectValue placeholder="All dates" />
+                <SelectValue placeholder="Всі дати" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All dates</SelectItem>
-                <SelectItem value="today">Today</SelectItem>
-                <SelectItem value="yesterday">Yesterday</SelectItem>
-                <SelectItem value="last7days">Last 7 days</SelectItem>
-                <SelectItem value="last30days">Last 30 days</SelectItem>
+                <SelectItem value="all">Всі дати</SelectItem>
+                <SelectItem value="today">Сьогодні</SelectItem>
+                <SelectItem value="yesterday">Вчора</SelectItem>
+                <SelectItem value="last7days">Останні 7 днів</SelectItem>
+                <SelectItem value="last30days">Останні 30 днів</SelectItem>
               </SelectContent>
             </Select>
 
-            <Button variant="outline" size="sm" onClick={handleBulkSelect}>
-              Bulk select
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleBulkSelect}
+              className="admin-button admin-button-secondary"
+            >
+              Вибрати все
             </Button>
           </div>
 
           <div className="relative w-[300px]">
             <Search className="absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500" />
             <Input
-              placeholder="Search media"
+              placeholder="Пошук медіа"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-8"
+              className="pl-8 admin-form-input"
             />
           </div>
         </div>
       </div>
+
+      {/* Решта коду залишається без змін */}
 
       {/* Content */}
       {isLoading ? (
