@@ -22,7 +22,7 @@ export function Sidebar() {
   const pathname = usePathname()
   const [hoveredItem, setHoveredItem] = useState<string | null>(null)
 
-  // Додайте ці змінні на початку компонента Sidebar після useState
+  // Додаємо ці змінні на початку компонента Sidebar після useState
   const [timeoutId, setTimeoutId] = useState<NodeJS.Timeout | null>(null)
 
   const isActive = (path: string) => {
@@ -298,24 +298,7 @@ export function Sidebar() {
                 </li>
                 <li style={{ padding: 0, margin: 0 }}>
                   <Link
-                    href="/admin/media/upload"
-                    style={{
-                      display: "block",
-                      padding: "8px 16px",
-                      color: "#3c434a",
-                      textDecoration: "none",
-                      fontSize: "14px",
-                      transition: "background-color 0.2s",
-                    }}
-                    onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#f8f9fa")}
-                    onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
-                  >
-                    Додати медіа файл
-                  </Link>
-                </li>
-                <li style={{ padding: 0, margin: 0 }}>
-                  <Link
-                    href="/admin/media/direct-upload"
+                    href="/admin/media/upload-universal"
                     style={{
                       display: "block",
                       padding: "8px 16px",
@@ -330,7 +313,7 @@ export function Sidebar() {
                   >
                     <div className="flex items-center">
                       <Upload size={14} className="mr-1.5" />
-                      <span>Пряме завантаження</span>
+                      <span>Завантажити файл</span>
                     </div>
                   </Link>
                 </li>
@@ -343,10 +326,7 @@ export function Sidebar() {
               <Link href="/admin/media">Галерея</Link>
             </li>
             <li className="admin-submenu-item">
-              <Link href="/admin/media/upload">Додати медіа файл</Link>
-            </li>
-            <li className="admin-submenu-item">
-              <Link href="/admin/media/direct-upload">Пряме завантаження</Link>
+              <Link href="/admin/media/upload-universal">Завантажити файл</Link>
             </li>
           </ul>
         </li>
