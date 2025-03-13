@@ -44,8 +44,14 @@ const defaultSettings: SiteSettings = {
   week_starts_on: "monday",
 }
 
+const defaultSettingsFixed: SiteSettings = {
+  ...defaultSettings,
+  date_format: "d MMMM yyyy", // Changed from "F j, Y" which is PHP/WordPress format
+  time_format: "HH:mm", // Changed from "g:i a" which is PHP/WordPress format
+}
+
 export default function SettingsPage() {
-  const [settings, setSettings] = useState<SiteSettings>(defaultSettings)
+  const [settings, setSettings] = useState<SiteSettings>(defaultSettingsFixed)
   const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
   const [datePreview, setDatePreview] = useState("")
@@ -61,17 +67,35 @@ export default function SettingsPage() {
   }, [settings.date_format, settings.time_format])
 
   const fetchSettings = async () => {
+    setIsLoading(true) // Ensure setIsLoading is called unconditionally
+
     try {
+      // First, ensure the settings table exists
+      await fetch("/api/setup-settings-table")
+
       const response = await fetch("/api/settings")
       if (!response.ok) {
-        throw new Error("Failed to fetch settings")
+        console.error("Settings API error:", await response.text())
+        // If we can't fetch settings, just use defaults
+        setSettings(defaultSettingsFixed) // Set default settings on error
+        return
       }
+
       const data = await response.json()
-      setSettings(data || defaultSettings)
+      if (data) {
+        setSettings({
+          ...defaultSettingsFixed,
+          ...data,
+        })
+      }
     } catch (error) {
       console.error("Error fetching settings:", error)
+      // Continue with default settings
+      setSettings(defaultSettingsFixed) // Set default settings on error
     } finally {
       setIsLoading(false)
+      // Make sure to update previews after loading settings
+      setTimeout(updatePreviews, 0)
     }
   }
 
