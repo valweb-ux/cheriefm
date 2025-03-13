@@ -4,8 +4,6 @@ import type React from "react"
 
 import { useState, useRef, useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { AdminPageHeader } from "@/components/admin/ui/AdminPageHeader"
-import { Button } from "@/components/ui/button"
 import { Upload, ArrowLeft, AlertCircle } from "lucide-react"
 
 export default function UploadMediaPage() {
@@ -197,96 +195,103 @@ export default function UploadMediaPage() {
 
   return (
     <>
-      <AdminPageHeader
-        title="Завантаження медіа файлів"
-        breadcrumbs={[
-          { label: "Адмінпанель", href: "/admin" },
-          { label: "Медіа", href: "/admin/media" },
-          { label: "Завантаження" },
-        ]}
-        actions={
-          <Button variant="outline" onClick={() => router.back()}>
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Назад
-          </Button>
-        }
-      />
+      <h1 className="admin-page-title">Завантаження медіа файлів</h1>
 
-      <div className="bg-white border border-gray-200 rounded-lg p-6">
-        <div
-          ref={dropZoneRef}
-          className={`
-            relative min-h-[300px] border-2 border-dashed rounded-lg
-            transition-colors duration-200 ease-in-out
-            flex flex-col items-center justify-center
-            ${isDragActive ? "border-primary bg-primary/5" : "border-gray-300"}
-            ${isUploading ? "pointer-events-none opacity-50" : ""}
-          `}
-        >
-          <input
-            ref={fileInputRef}
-            type="file"
-            multiple
-            onChange={handleFileInputChange}
-            accept="image/*,audio/*,video/*,application/pdf"
-            className="hidden"
-          />
-          <Upload className="h-12 w-12 text-gray-400 mb-4" />
-          <div className="text-center">
-            <p className="text-lg font-medium mb-1">
-              {isDragActive ? "Відпустіть файли для завантаження" : "Перетягніть файли сюди"}
-            </p>
-            <p className="text-sm text-gray-500 mb-4">або</p>
-            <Button disabled={isUploading} onClick={handleSelectFilesClick}>
-              Вибрати файли
-            </Button>
-          </div>
+      <div className="admin-notice admin-notice-info">
+        <p>Ви можете завантажити зображення, аудіо, відео та PDF файли. Максимальний розмір файлу: 2GB.</p>
+      </div>
+
+      <div style={{ marginBottom: "15px" }}>
+        <button onClick={() => router.back()} className="admin-button admin-button-secondary">
+          <ArrowLeft className="mr-2 h-4 w-4" style={{ display: "inline" }} />
+          Назад
+        </button>
+      </div>
+
+      <div className="dashboard-widget">
+        <div className="dashboard-widget-header">
+          <h2 className="dashboard-widget-title">Завантаження файлів</h2>
         </div>
-
-        {error && (
-          <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start">
-            <AlertCircle className="h-5 w-5 text-red-500 mr-2 flex-shrink-0 mt-0.5" />
-            <div className="flex-1">
-              <p className="text-sm text-red-700">{error}</p>
-              <details className="mt-2">
-                <summary className="text-xs text-red-500 cursor-pointer">Показати технічні деталі</summary>
-                <pre className="mt-2 text-xs bg-gray-100 p-2 rounded overflow-auto max-h-40">
-                  {error}
-                  {"\n\nЯкщо проблема повторюється, спробуйте:"}
-                  {"\n1. Перевірити формат відеофайлу (рекомендовано MP4, WebM)"}
-                  {"\n2. Зменшити розмір файлу"}
-                  {"\n3. Конвертувати файл в інший формат"}
-                </pre>
-              </details>
+        <div className="dashboard-widget-content">
+          <div
+            ref={dropZoneRef}
+            className={`
+              relative min-h-[300px] border-2 border-dashed rounded-lg
+              transition-colors duration-200 ease-in-out
+              flex flex-col items-center justify-center
+              ${isDragActive ? "border-primary bg-primary/5" : "border-gray-300"}
+              ${isUploading ? "pointer-events-none opacity-50" : ""}
+            `}
+          >
+            <input
+              ref={fileInputRef}
+              type="file"
+              multiple
+              onChange={handleFileInputChange}
+              accept="image/*,audio/*,video/*,application/pdf"
+              className="hidden"
+            />
+            <Upload className="h-12 w-12 text-gray-400 mb-4" />
+            <div className="text-center">
+              <p className="text-lg font-medium mb-1">
+                {isDragActive ? "Відпустіть файли для завантаження" : "Перетягніть файли сюди"}
+              </p>
+              <p className="text-sm text-gray-500 mb-4">або</p>
+              <button
+                disabled={isUploading}
+                onClick={handleSelectFilesClick}
+                className="admin-button admin-button-primary"
+              >
+                Вибрати файли
+              </button>
             </div>
           </div>
-        )}
 
-        {Object.keys(uploadProgress).length > 0 && (
-          <div className="mt-4 space-y-3">
-            {Object.entries(uploadProgress).map(([fileName, progress]) => (
-              <div key={fileName} className="flex items-center">
-                <div className="flex-1">
-                  <p className="text-sm font-medium mb-1">{fileName}</p>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div
-                      className="bg-primary h-2 rounded-full transition-all duration-300"
-                      style={{ width: `${progress}%` }}
-                    />
-                  </div>
-                </div>
-                <span className="ml-4 text-sm text-gray-500">{progress}%</span>
+          {error && (
+            <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start">
+              <AlertCircle className="h-5 w-5 text-red-500 mr-2 flex-shrink-0 mt-0.5" />
+              <div className="flex-1">
+                <p className="text-sm text-red-700">{error}</p>
+                <details className="mt-2">
+                  <summary className="text-xs text-red-500 cursor-pointer">Показати технічні деталі</summary>
+                  <pre className="mt-2 text-xs bg-gray-100 p-2 rounded overflow-auto max-h-40">
+                    {error}
+                    {"\n\nЯкщо проблема повторюється, спробуйте:"}
+                    {"\n1. Перевірити формат відеофайлу (рекомендовано MP4, WebM)"}
+                    {"\n2. Зменшити розмір файлу"}
+                    {"\n3. Конвертувати файл в інший формат"}
+                  </pre>
+                </details>
               </div>
-            ))}
-          </div>
-        )}
+            </div>
+          )}
 
-        <div className="mt-4">
-          <p className="text-sm text-gray-500">
-            Ви використовуєте багатофайловий завантажувач.{" "}
-            <button className="text-primary hover:underline">Проблеми? Спробуйте звичайний завантажувач</button>
-          </p>
-          <p className="text-sm text-gray-500 mt-1">Максимальний розмір файлу: 2 GB</p>
+          {Object.keys(uploadProgress).length > 0 && (
+            <div className="mt-4 space-y-3">
+              {Object.entries(uploadProgress).map(([fileName, progress]) => (
+                <div key={fileName} className="flex items-center">
+                  <div className="flex-1">
+                    <p className="text-sm font-medium mb-1">{fileName}</p>
+                    <div className="w-full bg-gray-200 rounded-full h-2">
+                      <div
+                        className="bg-primary h-2 rounded-full transition-all duration-300"
+                        style={{ width: `${progress}%` }}
+                      />
+                    </div>
+                  </div>
+                  <span className="ml-4 text-sm text-gray-500">{progress}%</span>
+                </div>
+              ))}
+            </div>
+          )}
+
+          <div className="mt-4">
+            <p className="text-sm text-gray-500">
+              Ви використовуєте багатофайловий завантажувач.{" "}
+              <button className="admin-link">Проблеми? Спробуйте звичайний завантажувач</button>
+            </p>
+            <p className="text-sm text-gray-500 mt-1">Максимальний розмір файлу: 2 GB</p>
+          </div>
         </div>
       </div>
     </>
