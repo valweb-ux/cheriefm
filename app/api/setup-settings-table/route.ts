@@ -16,56 +16,56 @@ export async function GET() {
       // SQL для створення таблиці site_settings
       const { error: createError } = await supabaseAdmin.rpc("exec_sql", {
         sql_query: `
-          CREATE TABLE IF NOT EXISTS public.site_settings (
-            id SERIAL PRIMARY KEY,
-            site_title TEXT NOT NULL DEFAULT 'CherieFM',
-            site_tagline TEXT NOT NULL DEFAULT 'Feel Good Music !',
-            site_icon_url TEXT NOT NULL DEFAULT '/placeholder.svg',
-            site_url TEXT NOT NULL DEFAULT '',
-            admin_email TEXT NOT NULL DEFAULT '',
-            allow_registration BOOLEAN NOT NULL DEFAULT false,
-            default_role TEXT NOT NULL DEFAULT 'user',
-            site_language TEXT NOT NULL DEFAULT 'uk',
-            timezone TEXT NOT NULL DEFAULT 'UTC+2',
-            date_format TEXT NOT NULL DEFAULT 'F j, Y',
-            time_format TEXT NOT NULL DEFAULT 'g:i a',
-            week_starts_on TEXT NOT NULL DEFAULT 'monday',
-            created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
-            updated_at TIMESTAMP WITH TIME ZONE DEFAULT now()
-          );
-          
-          -- Додаємо тригер для оновлення updated_at
-          CREATE OR REPLACE FUNCTION update_modified_column()
-          RETURNS TRIGGER AS $$
-          BEGIN
-            NEW.updated_at = now();
-            RETURN NEW;
-          END;
-          $$ language 'plpgsql';
-          
-          DROP TRIGGER IF EXISTS update_site_settings_updated_at ON public.site_settings;
-          
-          CREATE TRIGGER update_site_settings_updated_at
-          BEFORE UPDATE ON public.site_settings
-          FOR EACH ROW
-          EXECUTE PROCEDURE update_modified_column();
-          
-          -- Налаштовуємо RLS для таблиці
-          ALTER TABLE public.site_settings ENABLE ROW LEVEL SECURITY;
-          
-          -- Створюємо політику для доступу до таблиці
-          DROP POLICY IF EXISTS "Allow full access to site_settings" ON public.site_settings;
-          
-          CREATE POLICY "Allow full access to site_settings"
-          ON public.site_settings
-          USING (true)
-          WITH CHECK (true);
-          
-          -- Вставляємо початковий запис, якщо таблиця порожня
-          INSERT INTO public.site_settings (site_title, site_tagline)
-          SELECT 'CherieFM', 'Feel Good Music !'
-          WHERE NOT EXISTS (SELECT 1 FROM public.site_settings);
-        `,
+    CREATE TABLE IF NOT EXISTS public.site_settings (
+      id SERIAL PRIMARY KEY,
+      site_title TEXT NOT NULL DEFAULT 'CherieFM',
+      site_tagline TEXT NOT NULL DEFAULT 'Feel Good Music !',
+      site_icon_url TEXT NOT NULL DEFAULT '/placeholder.svg',
+      site_url TEXT NOT NULL DEFAULT '',
+      admin_email TEXT NOT NULL DEFAULT '',
+      allow_registration BOOLEAN NOT NULL DEFAULT false,
+      default_role TEXT NOT NULL DEFAULT 'user',
+      site_language TEXT NOT NULL DEFAULT 'uk',
+      timezone TEXT NOT NULL DEFAULT 'UTC+2',
+      date_format TEXT NOT NULL DEFAULT 'd MMMM yyyy',
+      time_format TEXT NOT NULL DEFAULT 'HH:mm',
+      week_starts_on TEXT NOT NULL DEFAULT 'monday',
+      created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
+      updated_at TIMESTAMP WITH TIME ZONE DEFAULT now()
+    );
+    
+    -- Додаємо тригер для оновлення updated_at
+    CREATE OR REPLACE FUNCTION update_modified_column()
+    RETURNS TRIGGER AS $$
+    BEGIN
+      NEW.updated_at = now();
+      RETURN NEW;
+    END;
+    $$ language 'plpgsql';
+    
+    DROP TRIGGER IF EXISTS update_site_settings_updated_at ON public.site_settings;
+    
+    CREATE TRIGGER update_site_settings_updated_at
+    BEFORE UPDATE ON public.site_settings
+    FOR EACH ROW
+    EXECUTE PROCEDURE update_modified_column();
+    
+    -- Налаштовуємо RLS для таблиці
+    ALTER TABLE public.site_settings ENABLE ROW LEVEL SECURITY;
+    
+    -- Створюємо політику для доступу до таблиці
+    DROP POLICY IF EXISTS "Allow full access to site_settings" ON public.site_settings;
+    
+    CREATE POLICY "Allow full access to site_settings"
+    ON public.site_settings
+    USING (true)
+    WITH CHECK (true);
+    
+    -- Вставляємо початковий запис, якщо таблиця порожня
+    INSERT INTO public.site_settings (site_title, site_tagline, date_format, time_format)
+    SELECT 'CherieFM', 'Feel Good Music !', 'd MMMM yyyy', 'HH:mm'
+    WHERE NOT EXISTS (SELECT 1 FROM public.site_settings);
+  `,
       })
 
       if (createError) {
