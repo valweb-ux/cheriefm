@@ -24,18 +24,10 @@ export default function MediaPage() {
 
       <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "20px" }}>
         <div>
-          <Link
-            href="/admin/media/direct-upload"
-            className="admin-button admin-button-secondary"
-            style={{ marginRight: "10px" }}
-          >
+          <Link href="/admin/media/upload-universal" className="admin-button admin-button-primary">
             <Upload className="mr-2 h-4 w-4" style={{ display: "inline" }} />
-            Пряме завантаження
+            Завантажити файл
           </Link>
-          <button onClick={() => setShowUploadForm(!showUploadForm)} className="admin-button admin-button-primary">
-            <Upload className="mr-2 h-4 w-4" style={{ display: "inline" }} />
-            Додати новий
-          </button>
         </div>
 
         <div>
@@ -70,10 +62,10 @@ export default function MediaPage() {
                 <p className="mt-2 text-sm text-gray-500">Перетягніть файли сюди або</p>
                 <button className="admin-button admin-button-secondary mt-2">Вибрати файли</button>
                 <input type="file" multiple className="hidden" id="media-upload" />
-                <p className="mt-1 text-xs text-gray-500">Максимальний розмір файлу: 10MB</p>
+                <p className="mt-1 text-xs text-gray-500">Максимальний розмір файлу: 30MB</p>
                 <p className="mt-1 text-xs">
-                  <Link href="/admin/media/direct-upload" className="admin-link">
-                    Для великих файлів (до 100MB) використовуйте пряме завантаження
+                  <Link href="/admin/media/upload-universal" className="admin-link">
+                    Використовуйте універсальний завантажувач для всіх типів файлів
                   </Link>
                 </p>
               </div>
