@@ -4,7 +4,7 @@ import type React from "react"
 
 import { useState, useRef, useEffect } from "react"
 import { Button } from "@/components/ui/button"
-import { Upload, AlertCircle, Video, ImageIcon, FileText, Music, Check, X, Info } from "lucide-react"
+import { Upload, AlertCircle, Video, ImageIcon, FileText, Music, Check, X } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { supabase } from "@/lib/supabase"
 
@@ -164,7 +164,7 @@ export function UniversalUploader() {
         // Спеціальна обробка для помилки перевищення розміру
         if (uploadError.message.includes("exceeded the maximum allowed size")) {
           throw new Error(`Файл перевищує максимально дозволений розмір на сервері. 
-          Спробуйте зменшити розмір файлу або розділити його на менші частини.`)
+        Спробуйте зменшити розмір файлу або розділити його на менші частини.`)
         }
 
         throw new Error(`Помилка при завантаженні файлу: ${uploadError.message}`)
@@ -200,12 +200,7 @@ export function UniversalUploader() {
   }
 
   return (
-    <div className="bg-white border border-gray-200 rounded-lg p-6">
-      <h2 className="text-xl font-semibold mb-4">Універсальний завантажувач файлів</h2>
-      <p className="text-sm text-gray-500 mb-6">
-        Завантажуйте зображення, відео, аудіо та PDF файли розміром до 30MB безпосередньо до сховища даних.
-      </p>
-
+    <div>
       <div className="space-y-6">
         {filePreview && file?.type.startsWith("video/") ? (
           <div className="border rounded-lg overflow-hidden">
@@ -240,12 +235,12 @@ export function UniversalUploader() {
           <div
             ref={dropZoneRef}
             className={`
-              relative min-h-[300px] border-2 border-dashed rounded-lg
-              transition-colors duration-200 ease-in-out
-              flex flex-col items-center justify-center
-              ${isDragActive ? "border-primary bg-primary/5" : "border-gray-300"}
-              ${isUploading ? "pointer-events-none opacity-50" : ""}
-            `}
+            relative min-h-[300px] border-2 border-dashed rounded-lg
+            transition-colors duration-200 ease-in-out
+            flex flex-col items-center justify-center
+            ${isDragActive ? "border-primary bg-primary/5" : "border-gray-300"}
+            ${isUploading ? "pointer-events-none opacity-50" : ""}
+          `}
             onClick={() => fileInputRef.current?.click()}
           >
             <Upload className="h-12 w-12 text-gray-400 mb-4" />
@@ -301,7 +296,7 @@ export function UniversalUploader() {
 
         <div className="flex space-x-3">
           {file && !isUploading && !success && (
-            <Button onClick={handleUpload} className="w-full">
+            <Button onClick={handleUpload} className="w-full admin-button admin-button-primary">
               <Upload className="mr-2 h-4 w-4" />
               Завантажити файл
             </Button>
@@ -312,25 +307,13 @@ export function UniversalUploader() {
               variant="outline"
               onClick={() => fileInputRef.current?.click()}
               disabled={isUploading}
-              className={file ? "w-1/2" : "w-full"}
+              className={
+                file ? "w-1/2 admin-button admin-button-secondary" : "w-full admin-button admin-button-secondary"
+              }
             >
               {file ? "Вибрати інший файл" : "Вибрати файл"}
             </Button>
           )}
-        </div>
-
-        <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg flex items-start">
-          <Info className="h-5 w-5 text-blue-500 mr-2 flex-shrink-0 mt-0.5" />
-          <div className="flex-1">
-            <h4 className="text-sm font-medium text-blue-700 mb-1">Рекомендації щодо файлів:</h4>
-            <ul className="text-sm text-blue-700 space-y-1 list-disc pl-5">
-              <li>Максимальний розмір файлу: 30MB</li>
-              <li>Підтримувані формати зображень: JPG, PNG, GIF, WebP</li>
-              <li>Підтримувані формати відео: MP4, WebM</li>
-              <li>Підтримувані формати аудіо: MP3, WAV, OGG</li>
-              <li>Також підтримуються PDF документи</li>
-            </ul>
-          </div>
         </div>
       </div>
     </div>
