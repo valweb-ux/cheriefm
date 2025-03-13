@@ -19,6 +19,13 @@ export default function UniversalUploadPage() {
         </p>
       </div>
 
+      <div style={{ marginBottom: "15px" }}>
+        <Link href="/admin/media" className="admin-button admin-button-secondary">
+          <ArrowLeft className="mr-2 h-4 w-4" style={{ display: "inline" }} />
+          Назад до медіатеки
+        </Link>
+      </div>
+
       <div style={{ display: "flex", gap: "20px" }}>
         <div style={{ flex: "1" }}>
           <div className="dashboard-widget" style={{ marginBottom: "20px" }}>
@@ -27,15 +34,6 @@ export default function UniversalUploadPage() {
             </div>
             <div className="dashboard-widget-content">
               <UniversalUploader />
-            </div>
-          </div>
-
-          <div style={{ display: "flex", justifyContent: "space-between" }}>
-            <div>
-              <Link href="/admin/media" className="admin-button admin-button-secondary" style={{ marginRight: "10px" }}>
-                <ArrowLeft className="mr-2 h-4 w-4" style={{ display: "inline" }} />
-                Назад до медіатеки
-              </Link>
             </div>
           </div>
         </div>
