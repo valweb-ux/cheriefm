@@ -1,32 +1,14 @@
 "use client"
 
 import type React from "react"
-
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { LayoutGrid, LayoutList, Search, Loader2, Trash2, Copy, Check, Info, Folder, Upload } from "lucide-react"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Checkbox } from "@/components/ui/checkbox"
-import {
-  Loader2,
-  Upload,
-  Trash2,
-  Copy,
-  Check,
-  FolderPlus,
-  Folder,
-  Search,
-  Filter,
-  Edit,
-  Info,
-  Download,
-  Link,
-} from "lucide-react"
-import { Modal } from "@/components/ui/modal"
 import { format } from "date-fns"
 import { uk } from "date-fns/locale"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Pagination } from "@/components/ui/pagination"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 interface MediaFile {
   name: string
@@ -47,10 +29,13 @@ interface MediaLibraryProps {
   viewMode?: "grid" | "list"
 }
 
-export function MediaLibrary({ onSelectImage, isModal = false, viewMode = "grid" }: MediaLibraryProps) {
+export function MediaLibrary({
+  onSelectImage,
+  isModal = false,
+  viewMode: initialViewMode = "grid",
+}: MediaLibraryProps) {
   const [files, setFiles] = useState<MediaFile[]>([])
   const [isLoading, setIsLoading] = useState(true)
-  const [isUploading, setIsUploading] = useState(false)
   const [currentPath, setCurrentPath] = useState("")
   const [errorMessage, setErrorMessage] = useState("")
   const [successMessage, setSuccessMessage] = useState("")
@@ -64,11 +49,13 @@ export function MediaLibrary({ onSelectImage, isModal = false, viewMode = "grid"
   const [searchQuery, setSearchQuery] = useState("")
   const [showFilters, setShowFilters] = useState(false)
   const [dateFilter, setDateFilter] = useState("all")
+  const [viewMode, setViewMode] = useState<"grid" | "list">(initialViewMode)
   const [showFileDetails, setShowFileDetails] = useState<MediaFile | null>(null)
   const [isEditMode, setIsEditMode] = useState(false)
   const [editTitle, setEditTitle] = useState("")
   const [editAltText, setEditAltText] = useState("")
   const [editDescription, setEditDescription] = useState("")
+  const [isUploading, setIsUploading] = useState(false)
 
   const itemsPerPage = 20
 
@@ -82,20 +69,22 @@ export function MediaLibrary({ onSelectImage, isModal = false, viewMode = "grid"
       setErrorMessage("")
 
       const response = await fetch(
-        `/api/media?path=${encodeURIComponent(currentPath)}&page=${currentPage}&search=${encodeURIComponent(searchQuery)}&date=${dateFilter}`,
+        `/api/media?path=${encodeURIComponent(currentPath)}&page=${currentPage}&search=${encodeURIComponent(
+          searchQuery,
+        )}&date=${dateFilter}`,
       )
 
       if (!response.ok) {
         const data = await response.json()
-        throw new Error(data.error || "Не вдалося отримати список медіа-файлів")
+        throw new Error(data.error || "Failed to fetch media files")
       }
 
       const data = await response.json()
       setFiles(data.files || [])
-      setTotalPages(Math.ceil((data.total || 0) / itemsPerPage))
+      setTotalPages(Math.ceil((data.total || 0) / 20))
     } catch (error) {
-      console.error("Помилка при отриманні списку медіа-файлів:", error)
-      setErrorMessage(error instanceof Error ? error.message : "Не вдалося отримати список медіа-файлів")
+      console.error("Error fetching media files:", error)
+      setErrorMessage(error instanceof Error ? error.message : "Failed to fetch media files")
     } finally {
       setIsLoading(false)
     }
@@ -227,8 +216,8 @@ export function MediaLibrary({ onSelectImage, isModal = false, viewMode = "grid"
         setTimeout(() => setCopiedUrl(null), 2000)
       })
       .catch((err) => {
-        console.error("Не вдалося скопіювати URL:", err)
-        setErrorMessage("Не вдалося скопіювати URL")
+        console.error("Failed to copy URL:", err)
+        setErrorMessage("Failed to copy URL")
       })
   }
 
@@ -645,289 +634,152 @@ export function MediaLibrary({ onSelectImage, isModal = false, viewMode = "grid"
     return viewMode === "grid" ? renderGridView() : renderListView()
   }
 
+  const handleBulkSelect = () => {
+    if (selectedFiles.length === files.length) {
+      setSelectedFiles([])
+    } else {
+      setSelectedFiles(files.map((file) => file.id))
+    }
+  }
+
   return (
-    <div className="space-y-4">
-      {errorMessage && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded relative">{errorMessage}</div>
-      )}
-
-      {successMessage && (
-        <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded relative">
-          {successMessage}
-        </div>
-      )}
-
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <div className="flex flex-wrap items-center gap-2">
-          <Button
-            variant="outline"
-            onClick={() => document.getElementById("media-upload")?.click()}
-            disabled={isUploading}
-            size="sm"
-          >
-            {isUploading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Upload className="mr-2 h-4 w-4" />}
-            Завантажити
-          </Button>
-          <input
-            id="media-upload"
-            type="file"
-            accept="image/*,audio/*,video/*,application/pdf"
-            onChange={handleFileUpload}
-            className="hidden"
-            multiple
-          />
-
-          <Button variant="outline" onClick={() => setShowNewFolderDialog(true)} size="sm">
-            <FolderPlus className="mr-2 h-4 w-4" />
-            Нова папка
-          </Button>
-
-          {currentPath && (
-            <Button variant="outline" onClick={navigateUp} size="sm">
-              Назад
-            </Button>
-          )}
-
-          {selectedFiles.length > 0 && (
-            <Button variant="outline" onClick={handleBulkDelete} size="sm" className="text-red-500 hover:bg-red-50">
-              <Trash2 className="mr-2 h-4 w-4" />
-              Видалити вибрані ({selectedFiles.length})
-            </Button>
-          )}
-        </div>
-
-        <div className="flex items-center gap-2 w-full md:w-auto">
-          <form onSubmit={handleSearch} className="flex gap-2 w-full md:w-auto">
-            <div className="relative w-full md:w-auto">
-              <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-              <Input
-                placeholder="Пошук медіа"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-8 h-9"
-              />
+    <div>
+      {/* Toolbar */}
+      <div className="border-b border-gray-200 p-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                className={viewMode === "list" ? "bg-gray-100" : ""}
+                onClick={() => setViewMode("list")}
+              >
+                <LayoutList className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                className={viewMode === "grid" ? "bg-gray-100" : ""}
+                onClick={() => setViewMode("grid")}
+              >
+                <LayoutGrid className="h-4 w-4" />
+              </Button>
             </div>
-            <Button type="submit" size="sm" variant="outline">
-              Пошук
+
+            <Select value="all">
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="All media items" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All media items</SelectItem>
+                <SelectItem value="images">Images</SelectItem>
+                <SelectItem value="videos">Videos</SelectItem>
+                <SelectItem value="documents">Documents</SelectItem>
+              </SelectContent>
+            </Select>
+
+            <Select value={dateFilter} onValueChange={setDateFilter}>
+              <SelectTrigger className="w-[140px]">
+                <SelectValue placeholder="All dates" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All dates</SelectItem>
+                <SelectItem value="today">Today</SelectItem>
+                <SelectItem value="yesterday">Yesterday</SelectItem>
+                <SelectItem value="last7days">Last 7 days</SelectItem>
+                <SelectItem value="last30days">Last 30 days</SelectItem>
+              </SelectContent>
+            </Select>
+
+            <Button variant="outline" size="sm" onClick={handleBulkSelect}>
+              Bulk select
             </Button>
-          </form>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setShowFilters(!showFilters)}
-            className={showFilters ? "bg-gray-100" : ""}
-          >
-            <Filter className="h-4 w-4" />
-          </Button>
+          </div>
+
+          <div className="relative w-[300px]">
+            <Search className="absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500" />
+            <Input
+              placeholder="Search media"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-8"
+            />
+          </div>
         </div>
       </div>
 
-      {showFilters && (
-        <div className="bg-gray-50 p-4 rounded-md border border-gray-200">
-          <div className="flex flex-wrap gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Дата</label>
-              <Select value={dateFilter} onValueChange={setDateFilter}>
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Всі дати" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Всі дати</SelectItem>
-                  <SelectItem value="today">Сьогодні</SelectItem>
-                  <SelectItem value="yesterday">Вчора</SelectItem>
-                  <SelectItem value="last7days">Останні 7 днів</SelectItem>
-                  <SelectItem value="last30days">Останні 30 днів</SelectItem>
-                  <SelectItem value="thismonth">Цей місяць</SelectItem>
-                  <SelectItem value="lastmonth">Минулий місяць</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Тип</label>
-              <Select defaultValue="all">
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Всі типи" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Всі типи</SelectItem>
-                  <SelectItem value="image">Зображення</SelectItem>
-                  <SelectItem value="audio">Аудіо</SelectItem>
-                  <SelectItem value="video">Відео</SelectItem>
-                  <SelectItem value="document">Документи</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="flex items-end">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => {
-                  setSearchQuery("")
-                  setDateFilter("all")
-                  setShowFilters(false)
-                  fetchFiles()
-                }}
+      {/* Content */}
+      {isLoading ? (
+        <div className="flex justify-center items-center p-12">
+          <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
+        </div>
+      ) : files.length === 0 ? (
+        <div className="text-center py-12">
+          <p className="text-gray-500">No media files found</p>
+        </div>
+      ) : (
+        <div className={viewMode === "grid" ? "grid grid-cols-5 gap-4 p-4" : "divide-y"}>
+          {files.map((file) =>
+            viewMode === "grid" ? (
+              <div
+                key={file.id}
+                className="group relative aspect-square overflow-hidden rounded-lg border border-gray-200 bg-gray-100"
               >
-                Скинути фільтри
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {renderBreadcrumbs()}
-
-      {renderContent()}
-
-      {totalPages > 1 && (
-        <div className="flex justify-center mt-6">
-          <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
-        </div>
-      )}
-
-      <Modal isOpen={showNewFolderDialog} onClose={() => setShowNewFolderDialog(false)} title="Створити нову папку">
-        <div className="space-y-4 py-4">
-          <Input placeholder="Назва папки" value={newFolderName} onChange={(e) => setNewFolderName(e.target.value)} />
-          <div className="flex justify-end space-x-2">
-            <Button variant="outline" onClick={() => setShowNewFolderDialog(false)}>
-              Скасувати
-            </Button>
-            <Button onClick={handleCreateFolder}>Створити</Button>
-          </div>
-        </div>
-      </Modal>
-
-      <Modal
-        isOpen={showFileDetails !== null}
-        onClose={() => setShowFileDetails(null)}
-        title={isEditMode ? "Редагувати деталі файлу" : "Деталі файлу"}
-        className="max-w-3xl"
-      >
-        {showFileDetails && (
-          <div className="py-4">
-            <div className="flex flex-col md:flex-row gap-6">
-              <div className="w-full md:w-1/3">
-                <div className="bg-gray-100 rounded-md overflow-hidden">
+                <img
+                  src={file.publicUrl || "/placeholder.svg"}
+                  alt={file.name}
+                  className="h-full w-full object-cover"
+                  onClick={() => onSelectImage?.(file.publicUrl)}
+                />
+                <div className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 transition-opacity group-hover:opacity-100">
+                  <div className="flex space-x-2">
+                    <Button size="sm" variant="secondary" onClick={() => handleCopyUrl(file.publicUrl)}>
+                      {copiedUrl === file.publicUrl ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                    </Button>
+                    <Button size="sm" variant="secondary">
+                      <Info className="h-4 w-4" />
+                    </Button>
+                    <Button size="sm" variant="secondary">
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div key={file.id} className="flex items-center p-4 hover:bg-gray-50">
+                <div className="h-16 w-16 flex-shrink-0">
                   <img
-                    src={showFileDetails.publicUrl || "/placeholder.svg"}
-                    alt={showFileDetails.name}
-                    className="w-full h-auto object-cover"
+                    src={file.publicUrl || "/placeholder.svg"}
+                    alt={file.name}
+                    className="h-full w-full rounded object-cover"
                   />
                 </div>
-                <div className="mt-4 space-y-2 text-sm">
-                  <p>
-                    <strong>Назва файлу:</strong> {showFileDetails.name}
-                  </p>
-                  <p>
-                    <strong>Тип файлу:</strong> {showFileDetails.metadata?.mimetype || "Невідомо"}
-                  </p>
-                  <p>
-                    <strong>Розмір:</strong>{" "}
-                    {formatFileSize(showFileDetails.metadata?.size || showFileDetails.size || 0)}
-                  </p>
-                  <p>
-                    <strong>Дата завантаження:</strong>{" "}
-                    {showFileDetails.created_at
-                      ? format(new Date(showFileDetails.created_at), "d MMMM yyyy, HH:mm", { locale: uk })
-                      : "Невідомо"}
-                  </p>
-                  <p>
-                    <strong>Розміри:</strong> 800 x 600 пікселів
-                  </p>
+                <div className="ml-4 flex-1">
+                  <div className="font-medium">{file.name}</div>
+                  <div className="text-sm text-gray-500">{new Date(file.created_at || "").toLocaleDateString()}</div>
                 </div>
-                <div className="mt-4 space-y-2">
-                  <Button variant="outline" className="w-full" onClick={() => handleCopyUrl(showFileDetails.publicUrl)}>
-                    <Link className="mr-2 h-4 w-4" />
-                    {copiedUrl === showFileDetails.publicUrl ? "URL скопійовано!" : "Копіювати URL"}
+                <div className="flex space-x-2">
+                  <Button size="sm" variant="ghost" onClick={() => handleCopyUrl(file.publicUrl)}>
+                    {copiedUrl === file.publicUrl ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
                   </Button>
-                  <Button variant="outline" className="w-full">
-                    <Download className="mr-2 h-4 w-4" />
-                    Завантажити файл
+                  <Button size="sm" variant="ghost">
+                    <Info className="h-4 w-4" />
                   </Button>
-                  <Button
-                    variant="outline"
-                    className="w-full text-red-500 hover:bg-red-50"
-                    onClick={() => {
-                      handleDeleteFile(showFileDetails.name)
-                      setShowFileDetails(null)
-                    }}
-                  >
-                    <Trash2 className="mr-2 h-4 w-4" />
-                    Видалити назавжди
+                  <Button size="sm" variant="ghost">
+                    <Trash2 className="h-4 w-4" />
                   </Button>
                 </div>
               </div>
-              <div className="w-full md:w-2/3">
-                {isEditMode ? (
-                  <div className="space-y-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Заголовок</label>
-                      <Input value={editTitle} onChange={(e) => setEditTitle(e.target.value)} />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Альтернативний текст</label>
-                      <Input
-                        value={editAltText}
-                        onChange={(e) => setEditAltText(e.target.value)}
-                        placeholder="Опис зображення для екранних читачів"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Опис</label>
-                      <textarea
-                        value={editDescription}
-                        onChange={(e) => setEditDescription(e.target.value)}
-                        className="w-full border border-gray-300 rounded-md p-2 min-h-[100px]"
-                        placeholder="Детальний опис зображення"
-                      />
-                    </div>
-                    <div className="flex justify-end space-x-2 mt-6">
-                      <Button variant="outline" onClick={() => setIsEditMode(false)}>
-                        Скасувати
-                      </Button>
-                      <Button onClick={handleSaveFileDetails}>Зберегти</Button>
-                    </div>
-                  </div>
-                ) : (
-                  <div>
-                    <Tabs defaultValue="details">
-                      <TabsList className="mb-4">
-                        <TabsTrigger value="details">Деталі</TabsTrigger>
-                        <TabsTrigger value="usage">Використання</TabsTrigger>
-                      </TabsList>
-                      <TabsContent value="details" className="space-y-4">
-                        <div>
-                          <h3 className="text-lg font-medium mb-2">Деталі файлу</h3>
-                          <p className="text-sm text-gray-600 mb-4">
-                            Тут ви можете переглянути та редагувати деталі файлу, такі як заголовок, альтернативний
-                            текст та опис.
-                          </p>
-                          <Button variant="outline" onClick={() => setIsEditMode(true)}>
-                            <Edit className="mr-2 h-4 w-4" />
-                            Редагувати деталі
-                          </Button>
-                        </div>
-                        <div className="border-t pt-4">
-                          <h4 className="font-medium mb-2">URL файлу</h4>
-                          <div className="bg-gray-50 p-2 rounded-md text-sm font-mono break-all">
-                            {showFileDetails.publicUrl}
-                          </div>
-                        </div>
-                      </TabsContent>
-                      <TabsContent value="usage">
-                        <div>
-                          <h3 className="text-lg font-medium mb-2">Використання файлу</h3>
-                          <p className="text-sm text-gray-600 mb-4">Цей файл не використовується в жодному контенті.</p>
-                        </div>
-                      </TabsContent>
-                    </Tabs>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        )}
-      </Modal>
+            ),
+          )}
+        </div>
+      )}
+
+      {/* Footer */}
+      <div className="border-t border-gray-200 p-4 text-sm text-gray-500">
+        Showing {files.length} of {files.length} media items
+      </div>
     </div>
   )
 }
