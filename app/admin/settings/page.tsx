@@ -12,7 +12,7 @@ import { Switch } from "@/components/ui/switch"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { format } from "date-fns"
 import { uk } from "date-fns/locale"
-import { Loader2 } from "lucide-react"
+import { Loader2, Save } from "lucide-react"
 
 interface SiteSettings {
   site_title: string
@@ -39,23 +39,19 @@ const defaultSettings: SiteSettings = {
   default_role: "user",
   site_language: "uk",
   timezone: "UTC+2",
-  date_format: "F j, Y",
-  time_format: "g:i a",
+  date_format: "d MMMM yyyy",
+  time_format: "HH:mm",
   week_starts_on: "monday",
 }
 
-const defaultSettingsFixed: SiteSettings = {
-  ...defaultSettings,
-  date_format: "d MMMM yyyy", // Changed from "F j, Y" which is PHP/WordPress format
-  time_format: "HH:mm", // Changed from "g:i a" which is PHP/WordPress format
-}
-
 export default function SettingsPage() {
-  const [settings, setSettings] = useState<SiteSettings>(defaultSettingsFixed)
+  const [settings, setSettings] = useState<SiteSettings>(defaultSettings)
   const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
   const [datePreview, setDatePreview] = useState("")
   const [timePreview, setTimePreview] = useState("")
+  const [error, setError] = useState<string | null>(null)
+  const [success, setSuccess] = useState<string | null>(null)
   const router = useRouter()
 
   useEffect(() => {
@@ -67,7 +63,8 @@ export default function SettingsPage() {
   }, [settings.date_format, settings.time_format])
 
   const fetchSettings = async () => {
-    setIsLoading(true) // Ensure setIsLoading is called unconditionally
+    setIsLoading(true)
+    setError(null)
 
     try {
       // First, ensure the settings table exists
@@ -76,38 +73,40 @@ export default function SettingsPage() {
       const response = await fetch("/api/settings")
       if (!response.ok) {
         console.error("Settings API error:", await response.text())
-        // If we can't fetch settings, just use defaults
-        setSettings(defaultSettingsFixed) // Set default settings on error
-        return
+        throw new Error("Не вдалося отримати налаштування")
       }
 
       const data = await response.json()
       if (data) {
         setSettings({
-          ...defaultSettingsFixed,
+          ...defaultSettings,
           ...data,
         })
       }
     } catch (error) {
       console.error("Error fetching settings:", error)
-      // Continue with default settings
-      setSettings(defaultSettingsFixed) // Set default settings on error
+      setError("Не вдалося завантажити налаштування. Використовуються значення за замовчуванням.")
     } finally {
       setIsLoading(false)
-      // Make sure to update previews after loading settings
       setTimeout(updatePreviews, 0)
     }
   }
 
   const updatePreviews = () => {
-    const now = new Date()
-    setDatePreview(format(now, settings.date_format, { locale: uk }))
-    setTimePreview(format(now, settings.time_format, { locale: uk }))
+    try {
+      const now = new Date()
+      setDatePreview(format(now, settings.date_format, { locale: uk }))
+      setTimePreview(format(now, settings.time_format, { locale: uk }))
+    } catch (error) {
+      console.error("Error updating previews:", error)
+    }
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsSaving(true)
+    setError(null)
+    setSuccess(null)
 
     try {
       const response = await fetch("/api/settings", {
@@ -119,13 +118,14 @@ export default function SettingsPage() {
       })
 
       if (!response.ok) {
-        throw new Error("Failed to save settings")
+        const errorData = await response.json()
+        throw new Error(errorData.error || "Не вдалося зберегти налаштування")
       }
 
-      alert("Налаштування успішно збережено")
+      setSuccess("Налаштування успішно збережено")
     } catch (error) {
       console.error("Error saving settings:", error)
-      alert("Помилка при збереженні налаштувань")
+      setError(error instanceof Error ? error.message : "Не вдалося зберегти налаштування")
     } finally {
       setIsSaving(false)
     }
@@ -149,6 +149,18 @@ export default function SettingsPage() {
           сайту.
         </p>
       </div>
+
+      {error && (
+        <div className="admin-notice admin-notice-error mb-4">
+          <p>{error}</p>
+        </div>
+      )}
+
+      {success && (
+        <div className="admin-notice admin-notice-success mb-4">
+          <p>{success}</p>
+        </div>
+      )}
 
       <form onSubmit={handleSubmit}>
         <div style={{ display: "flex", gap: "20px" }}>
@@ -188,6 +200,7 @@ export default function SettingsPage() {
                     value={settings.site_url}
                     onChange={(e) => setSettings({ ...settings, site_url: e.target.value })}
                     className="admin-form-input"
+                    placeholder="https://cheriefm.vercel.app"
                   />
                 </div>
 
@@ -199,6 +212,7 @@ export default function SettingsPage() {
                     value={settings.admin_email}
                     onChange={(e) => setSettings({ ...settings, admin_email: e.target.value })}
                     className="admin-form-input"
+                    placeholder="admin@example.com"
                   />
                   <p className="text-sm text-gray-500 mt-1">Ця адреса використовується для адміністративних цілей.</p>
                 </div>
@@ -357,7 +371,10 @@ export default function SettingsPage() {
                 Збереження...
               </>
             ) : (
-              "Зберегти зміни"
+              <>
+                <Save className="mr-2 h-4 w-4" />
+                Зберегти зміни
+              </>
             )}
           </Button>
         </div>
