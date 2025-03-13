@@ -1,116 +1,26 @@
 "use client"
-
-import { useState } from "react"
 import Link from "next/link"
 import { MediaLibrary } from "@/components/admin/MediaLibrary"
-import { Grid, List, Upload } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Upload } from "lucide-react"
 
 export default function MediaPage() {
-  // Додаємо новий стан для фільтрації типу медіа
-  const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
-  const [mediaType, setMediaType] = useState<"all" | "images" | "documents" | "audio" | "video">("all")
-  const [showUploadForm, setShowUploadForm] = useState(false)
-
   return (
-    <>
-      <h1 className="admin-page-title">Медіа-бібліотека</h1>
-
-      <div className="admin-notice admin-notice-info">
-        <p>
-          Управління зображеннями та іншими медіа-файлами. Ви можете завантажувати нові файли, переглядати та видаляти
-          існуючі.
-        </p>
-      </div>
-
-      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "20px" }}>
-        <div>
-          <Link href="/admin/media/upload-universal" className="admin-button admin-button-primary">
-            <Upload className="mr-2 h-4 w-4" style={{ display: "inline" }} />
-            Завантажити файл
+    <div>
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-semibold">Media Library</h1>
+        <Button asChild>
+          <Link href="/admin/media/upload-universal">
+            <Upload className="mr-2 h-4 w-4" />
+            Add New Media File
           </Link>
-        </div>
-
-        <div>
-          <button
-            onClick={() => setViewMode("grid")}
-            className={`admin-button ${viewMode === "grid" ? "admin-button-primary" : "admin-button-secondary"}`}
-            style={{ marginRight: "5px" }}
-          >
-            <Grid size={16} style={{ display: "inline", marginRight: "5px" }} />
-            Сітка
-          </button>
-          <button
-            onClick={() => setViewMode("list")}
-            className={`admin-button ${viewMode === "list" ? "admin-button-primary" : "admin-button-secondary"}`}
-          >
-            <List size={16} style={{ display: "inline", marginRight: "5px" }} />
-            Список
-          </button>
-        </div>
+        </Button>
       </div>
 
-      <div className="dashboard-widget">
-        <div className="dashboard-widget-header">
-          <h2 className="dashboard-widget-title">Медіа-файли</h2>
-        </div>
-        <div className="dashboard-widget-content">
-          {showUploadForm && (
-            <div className="mb-6 p-4 bg-gray-50 border border-gray-200 rounded-md">
-              <h3 className="text-lg font-medium mb-4">Додати нові медіа</h3>
-              <div className="border-2 border-dashed border-gray-300 rounded-md p-8 text-center">
-                <Upload className="mx-auto h-12 w-12 text-gray-400" />
-                <p className="mt-2 text-sm text-gray-500">Перетягніть файли сюди або</p>
-                <button className="admin-button admin-button-secondary mt-2">Вибрати файли</button>
-                <input type="file" multiple className="hidden" id="media-upload" />
-                <p className="mt-1 text-xs text-gray-500">Максимальний розмір файлу: 30MB</p>
-                <p className="mt-1 text-xs">
-                  <Link href="/admin/media/upload-universal" className="admin-link">
-                    Використовуйте універсальний завантажувач для всіх типів файлів
-                  </Link>
-                </p>
-              </div>
-            </div>
-          )}
-
-          <div className="mb-4">
-            <div className="flex border-b border-gray-200">
-              <button
-                className={`px-4 py-2 font-medium text-sm ${mediaType === "all" ? "border-b-2 border-blue-500 text-blue-500" : "text-gray-500"}`}
-                onClick={() => setMediaType("all")}
-              >
-                Всі медіа
-              </button>
-              <button
-                className={`px-4 py-2 font-medium text-sm ${mediaType === "images" ? "border-b-2 border-blue-500 text-blue-500" : "text-gray-500"}`}
-                onClick={() => setMediaType("images")}
-              >
-                Зображення
-              </button>
-              <button
-                className={`px-4 py-2 font-medium text-sm ${mediaType === "documents" ? "border-b-2 border-blue-500 text-blue-500" : "text-gray-500"}`}
-                onClick={() => setMediaType("documents")}
-              >
-                Документи
-              </button>
-              <button
-                className={`px-4 py-2 font-medium text-sm ${mediaType === "audio" ? "border-b-2 border-blue-500 text-blue-500" : "text-gray-500"}`}
-                onClick={() => setMediaType("audio")}
-              >
-                Аудіо
-              </button>
-              <button
-                className={`px-4 py-2 font-medium text-sm ${mediaType === "video" ? "border-b-2 border-blue-500 text-blue-500" : "text-gray-500"}`}
-                onClick={() => setMediaType("video")}
-              >
-                Відео
-              </button>
-            </div>
-          </div>
-
-          <MediaLibrary viewMode={viewMode} />
-        </div>
+      <div className="bg-white border border-gray-200 rounded-lg">
+        <MediaLibrary />
       </div>
-    </>
+    </div>
   )
 }
 
