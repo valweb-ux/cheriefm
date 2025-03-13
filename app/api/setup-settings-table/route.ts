@@ -15,19 +15,22 @@ export async function GET() {
 
       try {
         // Спочатку спробуємо створити функцію exec_sql, якщо вона ще не існує
-        await supabaseAdmin
-          .rpc("exec_sql", {
+        try {
+          await supabaseAdmin.rpc("exec_sql", {
             sql_query: `
-            CREATE OR REPLACE FUNCTION exec_sql(sql_query text) RETURNS void AS $$
-            BEGIN
-              EXECUTE sql_query;
-            END;
-            $$ LANGUAGE plpgsql SECURITY DEFINER;
-          `,
+              CREATE OR REPLACE FUNCTION exec_sql(sql_query text) RETURNS void AS $$
+              BEGIN
+                EXECUTE sql_query;
+              END;
+              $$ LANGUAGE plpgsql SECURITY DEFINER;
+            `,
           })
-          .catch((err) => {
-            console.log("Функція exec_sql вже існує або помилка створення:", err.message)
-          })
+        } catch (err) {
+          console.log(
+            "Функція exec_sql вже існує або помилка створення:",
+            err instanceof Error ? err.message : String(err),
+          )
+        }
 
         // SQL для створення таблиці site_settings
         const { error: createError } = await supabaseAdmin.rpc("exec_sql", {
